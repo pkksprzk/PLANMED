@@ -1,0 +1,2458 @@
+<!doctype html>
+<html lang="pl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Doctor Dashboard</title>
+
+  <style>
+    :root{
+      --bg: #cfdde6;
+      --ink: #001B28;
+      --muted: rgba(0,27,40,.62);
+      --white: rgba(255,255,255,.92);
+      --accent: #00CBDA;
+      --brandText: #224c5d;
+      --radius-xl: 28px;
+      --radius-lg: 22px;
+      --radius-md: 16px;
+
+      --glass-tint: rgba(255,255,255,.12);
+      --glass-tint-strong: rgba(255,255,255,.16);
+      --glass-stroke: rgba(255,255,255,.30);
+      --glass-blur: 18px;
+      --glass-sat: 140%;
+      --glass-shadow: 0 10px 26px rgba(0,0,0,.10);
+      --glass-inset-top: inset 0 1px 0 rgba(255,255,255,.28);
+      --glass-inset-bottom: inset 0 -1px 0 rgba(0,0,0,.06);
+
+      --topbar-h: 56px;
+      --topbar-radius: 999px;
+      --topbar-pad-x: 18px;
+      --topbar-font-size: 14px;
+      --topbar-font-weight: 600;
+      --topbar-bg: var(--glass-tint);
+      --topbar-border: 1px solid var(--glass-stroke);
+      --topbar-shadow: var(--glass-shadow);
+      --topbar-blur: var(--glass-blur);
+      --topbar-sat: var(--glass-sat);
+    }
+
+    *{ box-sizing:border-box; }
+
+    body{
+      margin:0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Noto Sans", "Helvetica Neue";
+      color: var(--ink);
+      min-height:100vh;
+      background: url("images/dd2.png") center/cover fixed no-repeat;
+      overflow-x:hidden;
+    }
+
+    body:before{
+      content:"";
+      position:fixed;
+      inset:0;
+      pointer-events:none;
+      background:
+        radial-gradient(900px 700px at 18% 12%, rgba(166,180,191,.55), transparent 60%),
+        radial-gradient(520px 720px at 55% 35%, rgba(222,231,242,.70), transparent 60%);
+      opacity: .85;
+    }
+
+    .app{
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 26px 22px 34px;
+      position:relative;
+    }
+
+    .glass{
+      background: var(--glass-tint);
+      border: 1px solid var(--glass-stroke);
+      border-radius: var(--radius-xl);
+      backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-sat));
+      -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-sat));
+      box-shadow: var(--glass-shadow), var(--glass-inset-top), var(--glass-inset-bottom);
+    }
+    .glass.strong{ background: var(--glass-tint-strong); }
+
+    .topbar{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:14px;
+      margin-bottom:18px;
+      font-size: var(--topbar-font-size);
+      font-weight: var(--topbar-font-weight);
+    }
+
+    .crumb.logo{ display: flex; align-items: center; }
+
+    .crumb.logo img{
+      height: 24px;
+      width: auto;
+      object-fit: contain;
+      opacity: .85;
+      filter: drop-shadow(0 2px 6px rgba(0,0,0,.12));
+    }
+
+    .crumb{ color: var(--muted); line-height:1; white-space: nowrap; }
+
+    .search, .pill, .theme-track{
+      height: var(--topbar-h);
+      border-radius: var(--topbar-radius);
+      background: var(--topbar-bg);
+      border: var(--topbar-border);
+      backdrop-filter: blur(var(--topbar-blur)) saturate(var(--topbar-sat));
+      -webkit-backdrop-filter: blur(var(--topbar-blur)) saturate(var(--topbar-sat));
+      box-shadow: var(--topbar-shadow), var(--glass-inset-top), var(--glass-inset-bottom);
+    }
+
+    .search{
+      flex:1;
+      max-width: 520px;
+      display:flex;
+      align-items:center;
+      gap:10px;
+      padding: 0 var(--topbar-pad-x);
+      font-size: 18px;
+      font-weight: 500;
+    }
+
+    .search input{
+      width:100%;
+      border:0;
+      outline:none;
+      background:transparent;
+      color: rgba(255,255,255,.95);
+      font-size: inherit;
+      font-weight: inherit;
+    }
+    .search input::placeholder{ color: rgba(255,255,255,.75); }
+
+    .search svg{
+      width:20px;height:20px;
+      opacity:.75;
+      flex:0 0 auto;
+      stroke: rgba(255,255,255,.85);
+    }
+
+    .top-actions{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      flex:0 0 auto;
+    }
+
+    .pill{
+      display:inline-flex;
+      align-items:center;
+      padding: 0 22px;
+      line-height:1;
+      cursor:pointer;
+      user-select:none;
+      transition: background .12s ease, transform .12s ease;
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--brandText);
+    }
+    .pill:hover{ background: rgba(255,255,255,.18); transform: translateY(-1px); }
+
+    .layout{
+      display:grid;
+      grid-template-columns: 78px 1fr;
+      gap: 18px;
+      align-items:start;
+    }
+
+    .sidebar{
+      padding: 10px 6px;
+      display:flex;
+      flex-direction:column;
+      position:sticky;
+      top:18px;
+      overflow: visible;
+    }
+
+    .sidenav{
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      gap:14px;
+    }
+
+    .side-spacer{ flex:1; }
+
+    .sideitem{
+      width:56px;
+      height:56px;
+      display:grid;
+      place-items:center;
+      border-radius:18px;
+      position:relative;
+      text-decoration:none;
+      transition: transform .12s ease, background .12s ease;
+    }
+    .sideitem:hover{ transform: translateY(-1px); background: rgba(255,255,255,.10); }
+
+    .sideitem img{ width:22px; height:22px; object-fit:contain; }
+
+    .sideitem::before{
+      content: attr(data-tip);
+      position: absolute;
+      left: 50%;
+      top: 62px;
+      transform: translateX(-50%) translateY(6px);
+      font-size: 12px;
+      font-weight: 900;
+      letter-spacing: .2px;
+      color: rgba(0,27,40,.70);
+      white-space: nowrap;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .12s ease, transform .12s ease;
+      text-shadow: 0 1px 0 rgba(255,255,255,.45);
+    }
+    .sideitem:hover::before{ opacity: 1; transform: translateX(-50%) translateY(0); }
+
+    .sideitem.active::after{
+      content:"";
+      position:absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      width: 56px;
+      height: 56px;
+      border-radius: 18px;
+      background: linear-gradient(135deg, rgba(0,203,218,.42), rgba(0,160,175,.55));
+      border: 1px solid rgba(255,255,255,.34);
+      box-shadow: 0 10px 22px rgba(0,0,0,.08);
+      z-index: -1;
+    }
+
+    .main{
+      display:grid;
+      grid-template-columns: 1.05fr 0.75fr 1.20fr;
+      grid-template-rows: auto auto 460px;
+      gap: 18px;
+      align-items: stretch;
+    }
+
+    .hero{
+      grid-column: 1 / 2;
+      grid-row: 1 / 2;
+      padding: 26px 26px 22px;
+      min-height: 170px;
+    }
+
+    .hero h1{
+      margin:0 0 6px;
+      font-size: 38px;
+      line-height:1.05;
+      letter-spacing: .2px;
+      color: #2d5e72;
+      font-weight: 900;
+    }
+
+    .hero p{
+      margin:0;
+      font-size: 30px;
+      color: #ebeff0;
+      font-weight: 650;
+    }
+
+    .quick{
+      grid-column: 2 / 4;
+      grid-row: 1 / 2;
+      display:grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 14px;
+      align-items:stretch;
+    }
+
+    .tile{
+      padding: 18px;
+      min-height: 170px;
+      display:flex;
+      flex-direction:column;
+      justify-content:space-between;
+      border-radius: var(--radius-xl);
+    }
+
+    .time{
+      height: 100%;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:center;
+      text-align:center;
+      margin: 0;
+    }
+
+    #clockTime{
+      font-size: 52px;
+      font-weight: 900;
+      letter-spacing: .5px;
+      color: rgba(255,255,255,.96);
+      line-height: 1;
+    }
+
+    #clockMeridiem{
+      margin-top: 10px;
+      font-size: 14px;
+      font-weight: 800;
+      letter-spacing: 2px;
+      color: rgba(255,255,255,.85);
+    }
+
+    .quick .tile:first-child{
+      position: relative;
+      overflow: hidden;
+      background: linear-gradient(135deg, rgba(0,203,218,.42), rgba(0,160,175,.55));
+      border: 1px solid rgba(255,255,255,.34);
+    }
+    .quick .tile:first-child::after{
+      content:"";
+      position:absolute;
+      inset:0;
+      border-radius: inherit;
+      pointer-events:none;
+      background: linear-gradient(to bottom, rgba(255,255,255,.30), transparent 45%);
+    }
+
+    .tile-action{ position: relative; overflow: hidden; }
+
+    .tile-link{
+      width: 100%;
+      height: 100%;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      position: relative;
+      text-decoration:none;
+    }
+
+    .tile-icon{
+      width: 56px;
+      height: 56px;
+      object-fit: contain;
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      transition: transform .14s ease, opacity .14s ease;
+    }
+    .tile-link:hover .tile-icon{ transform: translate(-50%, -52%); opacity: .9; }
+
+    .badge--count{
+      position:absolute;
+      right: 12px;
+      top: 12px;
+      min-width: 38px;
+      height: 30px;
+      padding: 0 10px;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      border-radius: 999px;
+      font-weight: 900;
+      font-size: 14px;
+      background: rgba(0,203,218,.16);
+      border: 1px solid rgba(0,203,218,.28);
+      color: rgba(0,27,40,.92);
+    }
+    .badge--hidden{ display:none !important; }
+
+    .scrollarea{
+      overflow-y: auto;
+      padding-right: 6px;
+      flex: 1 1 auto;
+      min-height: 0;
+    }
+    .scrollarea::-webkit-scrollbar{ width: 8px; }
+    .scrollarea::-webkit-scrollbar-thumb{
+      background: rgba(0,0,0,.12);
+      border-radius: 999px;
+    }
+
+    .notifications{
+      grid-column: 1 / 2;
+      grid-row: 2 / 3;
+      padding: 18px;
+      height: 240px;
+      display:flex;
+      flex-direction:column;
+      gap: 12px;
+    }
+
+    .cardtitle{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      font-size: 22px;
+      font-weight: 900;
+      color: var(--brandText);
+      flex: 0 0 auto;
+    }
+
+    .dots{
+      width:34px;height:28px;border-radius:999px;
+      display:grid;place-items:center;
+      border:1px solid rgba(255,255,255,.20);
+      background: rgba(255,255,255,.10);
+      cursor:pointer;
+      color: rgba(0,27,40,.65);
+    }
+
+    .noti{
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:12px;
+      padding: 14px 48px 14px 14px;
+      border-radius: var(--radius-lg);
+      background: rgba(255,255,255,.10);
+      border: 1px solid rgba(255,255,255,.22);
+      margin-bottom: 10px;
+      backdrop-filter: blur(14px) saturate(120%);
+      -webkit-backdrop-filter: blur(14px) saturate(120%);
+      position: relative;
+      cursor: pointer;
+    }
+
+    .noti p{ margin:0; font-weight:650; color: var(--brandText); }
+
+    .noti small{
+      display:inline-flex;
+      align-items:center;
+      gap:10px;
+      margin-top:6px;
+      color: var(--muted);
+      font-weight:600;
+    }
+
+    .dot{
+      width:10px;height:10px;border-radius:50%;
+      background: rgba(0,203,218,.90);
+      box-shadow: 0 0 0 3px rgba(0,203,218,.14);
+      flex: 0 0 auto;
+    }
+
+    .x{
+      width:34px;height:34px;border-radius: 12px;
+      border:1px solid rgba(255,255,255,.22);
+      background: rgba(255,255,255,.10);
+      color: rgba(0,27,40,.60);
+      cursor:pointer;
+      backdrop-filter: blur(14px) saturate(120%);
+      -webkit-backdrop-filter: blur(14px) saturate(120%);
+      position:absolute;
+      top: 10px;
+      right: 10px;
+      display:grid;
+      place-items:center;
+      transition: transform .12s ease, background .12s ease;
+    }
+    .x:hover{ transform: translateY(-1px); background: rgba(255,255,255,.16); }
+
+    .noti.is-read .dot{ opacity:0; box-shadow:none; }
+    .noti.is-read p{ opacity:.78; }
+    .noti.is-read small{ opacity:.85; }
+
+    .noti-tools{ position:relative; }
+
+    .noti-menu{
+      position:absolute;
+      right:0;
+      top:42px;
+      width: 170px;
+      padding: 10px;
+      border-radius: 18px;
+      background: rgba(255,255,255,.14);
+      border: 1px solid rgba(255,255,255,.24);
+      box-shadow: var(--glass-shadow), var(--glass-inset-top), var(--glass-inset-bottom);
+      backdrop-filter: blur(16px) saturate(140%);
+      -webkit-backdrop-filter: blur(16px) saturate(140%);
+      display:none;
+      z-index: 10;
+    }
+    .noti-menu.open{ display:block; }
+
+    .noti-menu button{
+      width:100%;
+      text-align:left;
+      padding: 10px 12px;
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,.18);
+      background: rgba(255,255,255,.10);
+      cursor:pointer;
+      font-weight: 850;
+      color: rgba(0,27,40,.80);
+      transition: transform .12s ease, background .12s ease;
+    }
+    .noti-menu button:hover{ transform: translateY(-1px); background: rgba(255,255,255,.16); }
+    .noti-menu button.is-active{
+      background: rgba(0,203,218,.16);
+      border-color: rgba(0,203,218,.30);
+    }
+
+    .calendar{
+      grid-column: 2 / 4;
+      grid-row: 2 / 3;
+      padding: 18px;
+      height: 240px;
+      display:flex;
+      flex-direction:column;
+      gap: 10px;
+    }
+
+    .calhead{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      font-size: 22px;
+      font-weight: 900;
+      color: var(--brandText);
+      flex: 0 0 auto;
+    }
+
+    .calnav{ display:flex; gap:10px; }
+
+    .calnav button{
+      width:38px;height:34px;border-radius: 12px;
+      border:1px solid rgba(255,255,255,.20);
+      background: rgba(255,255,255,.10);
+      color: rgba(0,27,40,.65);
+      cursor:pointer;
+      backdrop-filter: blur(14px) saturate(120%);
+      -webkit-backdrop-filter: blur(14px) saturate(120%);
+      transition: transform .12s ease;
+    }
+    .calnav button:hover{ transform: translateY(-1px); }
+
+    .calnav .cal-today{
+      width: auto;
+      min-width: 76px;
+      padding: 0 16px;
+      font-weight: 900;
+      font-size: 14px;
+      color: var(--brandText);
+      letter-spacing: .2px;
+    }
+
+    .cal-grid{
+      display:grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 6px;
+      margin-bottom: 12px;
+    }
+
+    .cal-dow{
+      font-size: 12px;
+      color: var(--muted);
+      font-weight: 800;
+      opacity:.9;
+      text-align:center;
+      padding: 4px 0;
+    }
+
+    .daycell{
+      height: 34px;
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,.18);
+      background: rgba(255,255,255,.08);
+      color: rgba(0,27,40,.82);
+      font-weight: 900;
+      cursor:pointer;
+      backdrop-filter: blur(14px) saturate(120%);
+      -webkit-backdrop-filter: blur(14px) saturate(120%);
+      display:grid;
+      place-items:center;
+      transition: transform .12s ease, background .12s ease, border-color .12s ease;
+    }
+    .daycell:hover{ transform: translateY(-1px); }
+
+    .daycell.is-today{
+      background: linear-gradient(135deg, rgba(0,203,218,.42), rgba(0,160,175,.55));
+      border: 1px solid rgba(255,255,255,.34);
+      color: rgba(255,255,255,.96);
+      box-shadow: 0 10px 22px rgba(0,0,0,.08);
+    }
+    .daycell.is-selected:not(.is-today){
+      background: rgba(0,203,218,.14);
+      border-color: rgba(0,203,218,.30);
+    }
+
+    .agenda{ display:flex; flex-direction:column; gap:10px; }
+
+    .slot{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      padding: 10px 12px;
+      border-radius: 16px;
+      border: 1px solid rgba(255,255,255,.22);
+      background: rgba(255,255,255,.10);
+      color: rgba(0,27,40,.84);
+      font-weight:700;
+      backdrop-filter: blur(14px) saturate(120%);
+      -webkit-backdrop-filter: blur(14px) saturate(120%);
+    }
+
+    .slot.is-active{
+      background: rgba(0,203,218,.14);
+      border-color: rgba(0,203,218,.30);
+    }
+
+    .slot > span:first-child{ color: #2d5e72; }
+
+    .slot .pillperson{
+      margin-left:auto;
+      display:flex;
+      align-items:center;
+      gap:8px;
+      padding: 7px 10px;
+      border-radius: 999px;
+      background: rgba(0,203,218,.14);
+      border: 1px solid rgba(0,203,218,.22);
+      color: rgba(255,255,255,.95);
+      backdrop-filter: blur(14px) saturate(120%);
+      -webkit-backdrop-filter: blur(14px) saturate(120%);
+    }
+
+    .slot .pillperson img{ width:16px; height:16px; object-fit:contain; }
+
+    .tasks{
+      grid-column: 1 / 3;
+      grid-row: 3 / 4;
+      padding: 18px;
+      height: 100%;
+      min-height: 0;
+      display:flex;
+      flex-direction:column;
+      gap: 12px;
+    }
+
+    .tasks .scrollarea{ flex: 1 1 auto; min-height: 0; }
+
+    .taskshead{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      flex: 0 0 auto;
+    }
+
+    .taskshead h3{
+      margin:0;
+      font-size:22px;
+      font-weight:900;
+      color: var(--brandText);
+    }
+
+    .btn{
+      border:1px solid rgba(255,255,255,.24);
+      background: rgba(255,255,255,.12);
+      color: var(--ink);
+      padding: 10px 14px;
+      border-radius: 999px;
+      font-weight:800;
+      cursor:pointer;
+      backdrop-filter: blur(14px) saturate(120%);
+      -webkit-backdrop-filter: blur(14px) saturate(120%);
+      transition: transform .12s ease, background .12s ease, border-color .12s ease, box-shadow .12s ease;
+    }
+    .btn:hover{ transform: translateY(-1px); background: rgba(255,255,255,.16); }
+
+    .btn.primary{
+      background: rgba(0,203,218,.18);
+      border: 1px solid rgba(0,203,218,.36);
+      box-shadow: var(--glass-shadow), 0 0 0 3px rgba(0,203,218,.10);
+    }
+
+    .taskshead .btn{
+      font-size: 18px;
+      font-weight: 500;
+      color: #fff;
+    }
+
+    .task{
+      display:flex;
+      align-items:center;
+      gap:12px;
+      padding: 14px;
+      border-radius: var(--radius-lg);
+      background: rgba(255,255,255,.10);
+      border:1px solid rgba(255,255,255,.22);
+      margin-bottom: 10px;
+      backdrop-filter: blur(14px) saturate(120%);
+      -webkit-backdrop-filter: blur(14px) saturate(120%);
+      position: relative;
+    }
+
+    .task .meta{ font-size:12px; color: var(--muted); font-weight:800; }
+    .task .title{ font-size:16px; font-weight:650; margin-top:2px; color: var(--brandText); }
+    .task .due{ font-size:12px; color: var(--muted); font-weight:800; margin-top:6px; }
+
+    .due .rel{
+      display:block;
+      margin-top:4px;
+      font-weight: 900;
+      opacity: .9;
+    }
+    .due .rel.is-overdue{ color: rgba(255, 82, 82, .92); }
+    .due .rel.is-soon{ color: rgba(255, 193, 7, .95); }
+
+    .task-status-wrap{ margin-left:auto; position:relative; flex: 0 0 auto; }
+
+    .task-status-pill{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding: 10px 14px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.20);
+      background: rgba(255,255,255,.10);
+      color: rgba(0,27,40,.86);
+      font-weight: 900;
+      font-size: 12px;
+      cursor:pointer;
+      user-select:none;
+      backdrop-filter: blur(14px) saturate(120%);
+      -webkit-backdrop-filter: blur(14px) saturate(120%);
+      transition: transform .12s ease, background .12s ease, border-color .12s ease, box-shadow .12s ease;
+      white-space: nowrap;
+    }
+
+    .task-status-pill:hover{ transform: translateY(-1px); background: rgba(255,255,255,.14); }
+
+    .task-status-dot{
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: rgba(255,255,255,.55);
+      box-shadow: 0 0 0 3px rgba(255,255,255,.10);
+    }
+
+    .task[data-status="pending"] .task-status-dot{
+      background: rgba(255,255,255,.55);
+      box-shadow: 0 0 0 3px rgba(255,255,255,.10);
+    }
+    .task[data-status="important"] .task-status-dot{
+      background: rgba(255,193,7,.90);
+      box-shadow: 0 0 0 3px rgba(255,193,7,.14);
+    }
+    .task[data-status="blocked"] .task-status-dot{
+      background: rgba(255,82,82,.90);
+      box-shadow: 0 0 0 3px rgba(255,82,82,.12);
+    }
+    .task[data-status="done"] .task-status-dot{
+      background: rgba(0,203,218,.90);
+      box-shadow: 0 0 0 3px rgba(0,203,218,.14);
+    }
+    .task[data-status="done"] .task-status-pill{
+      background: rgba(0,203,218,.14);
+      border-color: rgba(0,203,218,.26);
+    }
+
+    .task-status-chevron{ display:none !important; }
+
+    .status-popover{
+      position: fixed;
+      z-index: 9999;
+      width: 200px;
+      padding: 8px;
+      border-radius: 18px;
+      background: rgba(255,255,255,.14);
+      border: 1px solid rgba(255,255,255,.24);
+      box-shadow: var(--glass-shadow), var(--glass-inset-top), var(--glass-inset-bottom);
+      backdrop-filter: blur(16px) saturate(140%);
+      -webkit-backdrop-filter: blur(16px) saturate(140%);
+      transform-origin: top right;
+    }
+    .status-popover[hidden]{ display:none !important; }
+
+    .status-item{
+      width:100%;
+      display:flex;
+      align-items:center;
+      gap:10px;
+      padding: 10px 12px;
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,.16);
+      background: rgba(255,255,255,.10);
+      cursor:pointer;
+      font-weight: 900;
+      color: rgba(0,27,40,.86);
+      transition: transform .12s ease, background .12s ease;
+      text-align:left;
+    }
+    .status-item:hover{ transform: translateY(-1px); background: rgba(255,255,255,.16); }
+
+    .status-item .s-dot{
+      width: 8px;
+      height: 8px;
+      border-radius:50%;
+      background: rgba(255,255,255,.55);
+      box-shadow: 0 0 0 3px rgba(255,255,255,.10);
+      flex: 0 0 auto;
+    }
+    .status-item[data-status="important"] .s-dot{
+      background: rgba(255,193,7,.90);
+      box-shadow: 0 0 0 3px rgba(255,193,7,.14);
+    }
+    .status-item[data-status="blocked"] .s-dot{
+      background: rgba(255,82,82,.90);
+      box-shadow: 0 0 0 3px rgba(255,82,82,.12);
+    }
+    .status-item[data-status="done"] .s-dot{
+      background: rgba(0,203,218,.90);
+      box-shadow: 0 0 0 3px rgba(0,203,218,.14);
+    }
+    .status-item.is-active{
+      background: rgba(0,203,218,.12);
+      border-color: rgba(0,203,218,.22);
+    }
+
+    .rightcol{
+      grid-column: 3 / 4;
+      grid-row: 3 / 4;
+      display:grid;
+      grid-template-rows: 0.7fr 1fr;
+      gap: 14px;
+      height: 100%;
+      min-height: 0;
+      align-items: stretch;
+    }
+
+    .rightcol .banner{
+      grid-column: 1 / 3;
+      grid-row: 1 / 2;
+      height: 100%;
+      min-height: 0;
+      overflow: hidden;
+      position: relative;
+      padding: 18px;
+      display:flex;
+      align-items:flex-end;
+      justify-content:space-between;
+    }
+
+    .rightcol .progress{
+      grid-column: 1 / 2;
+      grid-row: 2 / 3;
+      height: 100%;
+      min-height: 0;
+      overflow: hidden;
+    }
+
+    .rightcol .patients-tile{
+      grid-column: 2 / 3;
+      grid-row: 2 / 3;
+      height: 100%;
+      min-height: 0;
+      overflow: hidden;
+    }
+
+    .banner{
+      position: relative;
+      padding-top: 22px;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      text-align: center;
+      overflow: hidden;
+    }
+
+    .bannerTitle{
+      position: relative;
+      z-index: 3;
+      font-size: 22px;
+      font-weight: 900;
+      color: #224c5d;
+      text-align: center;
+      opacity: 0;
+      transform: translateY(-6px);
+      transition: opacity .35s ease, transform .35s ease;
+    }
+    .banner:hover .bannerTitle{ opacity: 1; transform: translateY(0); }
+
+    .banner::before{
+      content:"";
+      position:absolute;
+      inset:0;
+      background-image: url("images/hand.png");
+      background-repeat: no-repeat;
+      background-size: cover;
+      background-position: center 40%;
+      z-index: 1;
+    }
+
+    .banner::after{
+      content:"";
+      position:absolute;
+      inset:0;
+      background: linear-gradient(
+        to bottom,
+        rgba(255,255,255,.55) 0%,
+        rgba(255,255,255,.25) 25%,
+        transparent 60%
+      );
+      pointer-events:none;
+      z-index: 1;
+    }
+
+    .progress{
+      padding: 16px;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:flex-start;
+      text-align:center;
+      gap: 12px;
+      min-height: 140px;
+      overflow: hidden;
+    }
+
+    .progressTitle{
+      width: 100%;
+      text-align:center;
+      font-weight: 900;
+      font-size: 20px;
+      color: #224c5d;
+      line-height: 1.1;
+    }
+
+    .ringWrap{
+      width: clamp(96px, 52%, 150px);
+      aspect-ratio: 1 / 1;
+      position: relative;
+      display:grid;
+      place-items:center;
+    }
+
+    .ringWrap::before{
+      content:"";
+      position:absolute;
+      inset: -10%;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(0,203,218,.22), transparent 60%);
+      filter: blur(6px);
+      opacity: .75;
+      animation: progressHalo 2.0s ease-in-out infinite;
+    }
+
+    @keyframes progressHalo{
+      0%, 100%{ transform: scale(.98); opacity: .55; }
+      50% { transform: scale(1.06); opacity: .95; }
+    }
+
+    .ringSvg{ width: 100%; height: 100%; display:block; }
+    .ringTrack{ fill: none; stroke: rgba(0,203,218,.16); stroke-width: 10; }
+
+    .ringValue{
+      fill: none;
+      stroke: rgba(0, 203, 218, 0.9);
+      stroke-width: 10;
+      stroke-linecap: round;
+      transform: rotate(-90deg);
+      transform-origin: 60px 60px;
+      transition: stroke-dashoffset 600ms ease;
+      filter: drop-shadow(0 0 10px rgba(0,203,218,.22));
+    }
+
+    .ringPct{
+      position:absolute;
+      inset:0;
+      display:grid;
+      place-items:center;
+      font-weight: 900;
+      font-size: 26px;
+      color: rgba(0,27,40,.78);
+      z-index: 1;
+    }
+
+    .progressMeta{
+      margin-top: 2px;
+      font-weight: 850;
+      opacity: .9;
+      color: #224c5d;
+    }
+
+    .mini{
+      padding: 16px;
+      min-height: 110px;
+      display:flex;
+      align-items:flex-end;
+      justify-content:space-between;
+    }
+
+    .patients-tile{
+      padding: 16px;
+      overflow:hidden;
+      position: relative;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:center;
+      text-align:center;
+      gap: 12px;
+    }
+
+    .patientsContent{
+      position: relative;
+      z-index: 2;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      height: 100%;
+      padding: 6px 0;
+      justify-content:space-between;
+      gap: 0;
+    }
+
+    .patientsLabel{
+      font-size: 20px;
+      font-weight: 900;
+      color: #224c5d;
+      line-height: 1.1;
+    }
+
+    .patientsMain{
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      gap: 6px;
+      line-height: 1;
+    }
+
+    .patientsCount{
+      font-size: 56px;
+      font-weight: 950;
+      color: #224c5d;
+    }
+
+    .patientsUnit{
+      font-size: 16px;
+      font-weight: 800;
+      color: #224c5d;
+      opacity: .8;
+    }
+
+    .patientsContext{
+      font-size: 18px;
+      font-weight: 900;
+      color: #224c5d;
+      line-height: 1.1;
+    }
+
+    .patients-tile.moving-blur::before{
+      content:"";
+      position:absolute;
+      inset: -30%;
+      z-index: 1;
+      background: radial-gradient(closest-side, rgba(0,203,218,.22), rgba(0,203,218,.10) 45%, transparent 70% );
+      filter: blur(18px);
+      opacity: .9;
+      transform: translate(-35%, -25%);
+      animation: glassDrift 4.8s ease-in-out infinite;
+    }
+
+    .patients-tile.moving-blur::after{
+      content:"";
+      position:absolute;
+      inset: -35%;
+      z-index: 1;
+      background: radial-gradient(closest-side, rgba(255,255,255,.22), rgba(255,255,255,.10) 40%, transparent 72% );
+      filter: blur(22px);
+      opacity: .55;
+      transform: translate(35%, 30%);
+      animation: glassDrift2 6.2s ease-in-out infinite;
+    }
+
+    @keyframes glassDrift{
+      0% { transform: translate(-40%, -25%) scale(1); }
+      50% { transform: translate(18%, 10%) scale(1.08); }
+      100% { transform: translate(-40%, -25%) scale(1); }
+    }
+
+    @keyframes glassDrift2{
+      0% { transform: translate(35%, 30%) scale(1); }
+      50% { transform: translate(-10%, -5%) scale(1.06); }
+      100% { transform: translate(35%, 30%) scale(1); }
+    }
+
+    .theme-switch{
+      display:inline-flex;
+      align-items:center;
+      height: var(--topbar-h);
+      user-select:none;
+    }
+
+    .theme-switch input{
+      position:absolute;
+      opacity:0;
+      width:1px;height:1px;
+    }
+
+    .theme-track{ position:relative; width: 110px; overflow:hidden; }
+
+    .theme-thumb{
+      position:absolute;
+      inset: 0 auto 0 0;
+      width:50%;
+      border-radius: 999px;
+      background: rgba(255,255,255,.16);
+      border: 1px solid rgba(255,255,255,.28);
+      box-shadow: 0 8px 18px rgba(0,0,0,.10), inset 0 1px 0 rgba(255,255,255,.28);
+      transition: transform .28s cubic-bezier(.2,.9,.2,1);
+      z-index:1;
+    }
+
+    .theme-switch input:checked + .theme-track .theme-thumb{ transform: translateX(100%); }
+
+    .theme-ico{
+      position:absolute;
+      top:50%;
+      transform: translate(-50%,-50%);
+      width:26px;height:26px;
+      pointer-events:none;
+      opacity:.95;
+      z-index:2;
+    }
+    .theme-ico img{ width:26px;height:26px; object-fit:contain; }
+    .theme-ico--sun{ left:25%; }
+    .theme-ico--moon{ left:75%; }
+
+    .theme-switch input:focus-visible + .theme-track{
+      outline: 3px solid rgba(0,203,218,.25);
+      outline-offset: 3px;
+    }
+
+    @media (max-width: 1080px){
+      .main{ grid-template-columns: 1fr 1fr; }
+      .quick{ grid-column: 1 / 3; }
+      .calendar{ grid-column: 1 / 3; }
+      .tasks{ grid-column: 1 / 3; }
+      .rightcol{
+        grid-column: 1 / 3;
+        grid-template-columns: 1fr 1fr 1fr;
+        grid-template-rows: auto;
+      }
+    }
+
+    @media (max-width: 720px){
+      .hero h1{ font-size:30px; }
+      .hero p{ font-size:22px; }
+    }
+
+    body.theme-dark{
+      --bg: #0f1f27;
+      --ink: rgba(255,255,255,.92);
+      --muted: rgba(255,255,255,.70);
+      --glass-tint: rgba(255,255,255,.08);
+      --glass-tint-strong: rgba(255,255,255,.12);
+      --glass-stroke: rgba(255,255,255,.18);
+      --topbar-bg: var(--glass-tint);
+      --topbar-border: 1px solid var(--glass-stroke);
+    }
+
+    body.theme-dark:before{
+      background:
+        radial-gradient(900px 700px at 18% 12%, rgba(0,0,0,.55), transparent 60%),
+        radial-gradient(520px 720px at 55% 35%, rgba(0,0,0,.45), transparent 60%);
+      opacity: .9;
+    }
+
+    body.theme-dark .search svg{ stroke: rgba(255,255,255,.70); }
+    body.theme-dark .sideitem::before{
+      color: rgba(255,255,255,.75);
+      text-shadow: 0 1px 0 rgba(0,0,0,.35);
+    }
+    body.theme-dark .scrollarea::-webkit-scrollbar-thumb{ background: rgba(255,255,255,.12); }
+
+    .sideBadge{
+      position:absolute;
+      right: 6px;
+      bottom: 6px;
+      display:none;
+      background:none;
+      border:0;
+      box-shadow:none;
+      padding:0;
+      min-width:0;
+      height:auto;
+      border-radius:0;
+      font-size:14px;
+      font-weight:950;
+      line-height:1;
+      color: rgba(0,27,40,.92);
+      pointer-events:none;
+      z-index:3;
+    }
+
+    @keyframes badgePulse {
+      0%   { transform: scale(1); opacity: 1; }
+      50%  { transform: scale(1.18); opacity: .85; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+    .sideBadge.pulse{ animation: badgePulse 1.1s ease-in-out infinite; }
+
+  
+    @media (max-width: 560px){
+      .app{ padding: 16px 14px 120px; max-width: 100%; }
+      .search{ display:none; }
+      .topbar{ margin-bottom: 12px; }
+      .pill{ height: 40px; padding: 0 14px; font-size: 14px; }
+      .crumb.logo img{ height: 20px; }
+
+      .sidebar{
+        position: fixed;
+        left: 50%;
+        transform: translateX(-50%);
+        bottom: 12px;
+        top: auto !important;
+        width: calc(100% - 8px);
+        max-width: 520px;
+        height: 72px;
+        padding: 10px 16px;
+        border-radius: 26px;
+        z-index: 999;
+      }
+
+      .sidenav{
+        width: 100%;
+        height: 100%;
+        display:flex;
+        flex-direction: row;
+        align-items:center;
+        justify-content: space-between;
+        gap: 8px;
+        margin: 0;
+        padding: 0;
+      }
+
+      .side-spacer{ display:none !important; }
+      .sideitem{ width: 52px; height: 52px; border-radius: 18px; display: grid; place-items: center; flex: 0 0 auto; }
+      .sideitem::before{ display:none !important; }
+      .sideitem.active::after{ width: 52px; height: 52px; border-radius: 18px; }
+
+      .layout{ grid-template-columns: 1fr; gap: 12px; }
+
+      .main{
+        grid-template-columns: 1fr 1fr;
+        grid-template-rows: auto auto auto auto auto;
+        gap: 12px;
+        align-items: start;
+      }
+
+      .hero{
+        grid-column: 1 / 2;
+        grid-row: 1 / 2;
+        padding: 18px 16px;
+        min-height: 150px;
+      }
+
+      .hero h1{ font-size: clamp(22px, 6vw, 28px); }
+      .hero p{ font-size: clamp(16px, 4.2vw, 20px); color: rgba(255,255,255,.75); }
+
+      .quick{ display: contents; }
+
+      .quick .tile.glass.strong{
+        grid-column: 2 / 3;
+        grid-row: 1 / 2;
+        min-height: 150px;
+        padding: 14px;
+      }
+
+      #clockTime{ font-size: clamp(34px, 9vw, 44px); }
+      #clockMeridiem{ font-size: 12px; margin-top: 8px; }
+
+      .quick .tile-action:first-of-type{ grid-column: 1 / 2; grid-row: 2 / 3; }
+      .quick .tile-action:last-of-type{ grid-column: 2 / 3; grid-row: 2 / 3; }
+
+      .quick .tile-action{
+        min-height: 72px;
+        padding: 14px;
+        display:flex;
+        align-items:center;
+        justify-content:center;
+      }
+
+      .tile-icon{ width: 36px; height: 36px; }
+
+      .notifications{
+        grid-column: 1 / 3;
+        grid-row: 3 / 4;
+        padding: 14px;
+        height: auto;
+        min-height: 190px;
+        max-height: 260px;
+      }
+
+      .calendar{
+        display:flex;
+        grid-column: 1 / 3;
+        grid-row: 4 / 5;
+        padding: 14px;
+        height: auto;
+        min-height: 210px;
+        max-height: 320px;
+      }
+
+      .calendar .cal-grid{ display:none; }
+      .calendar .agenda{ gap: 8px; }
+
+      .calendar .slot{ font-size: 14px; padding: 12px; }
+      .calendar .pillperson{ font-size: 13px; padding: 7px 10px; }
+
+      .tasks{
+        grid-column: 1 / 3;
+        grid-row: 5 / 6;
+        padding: 14px;
+        height: auto;
+        min-height: 320px;
+        max-height: 52svh;
+      }
+
+      .taskshead h3{ font-size: 18px; }
+      .taskshead .btn{ font-size: 14px; padding: 10px 12px; }
+
+      .rightcol{
+        display:grid;
+        grid-column: 1 / 3;
+        grid-row: 6 / 7;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+      }
+
+      .rightcol .banner{ display:none; }
+      .rightcol .progress{ min-height: 170px; }
+      .rightcol .patients-tile{ min-height: 170px; }
+      .patientsCount{ font-size: 44px; }
+      .progressTitle{ font-size: 18px; }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="app">
+    <div class="topbar">
+      <div class="crumb logo">
+        <img src="images/logog.png" alt="Logo">
+      </div>
+
+      <div class="search">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M21 21l-4.3-4.3m1.3-5.2a7 7 0 1 1-14 0 7 7 0 0 1 14 0Z" fill="none" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+        <input placeholder="Search" />
+      </div>
+
+      <div class="top-actions">
+        <label class="theme-switch" aria-label="Zmień motyw">
+          <input id="themeToggle" type="checkbox" />
+          <span class="theme-track">
+            <span class="theme-thumb"></span>
+            <span class="theme-ico theme-ico--sun" aria-hidden="true">
+              <img src="images/sun.svg" alt="" />
+            </span>
+            <span class="theme-ico theme-ico--moon" aria-hidden="true">
+              <img src="images/moon.svg" alt="" />
+            </span>
+          </span>
+        </label>
+
+        <div class="pill">Log out</div>
+      </div>
+    </div>
+
+    <div class="layout">
+      <aside class="sidebar glass">
+        <nav class="sidenav" aria-label="Sidebar">
+          <a class="sideitem active" href="dashboard.html" data-tip="Dashboard"><img src="images/dashboard.svg" alt="Dashboard"></a>
+          <a class="sideitem" href="patients.html" data-tip="Patients"><img src="images/person.svg" alt="Patients"></a>
+          <a class="sideitem" href="treatmentplan.html" data-tip="Treatment plan"><img src="images/add.svg" alt="Treatment plan"></a>
+          <a class="sideitem" href="notifications.html" data-tip="Notifications"><img src="images/notification.svg" alt="Notifications"></a>
+          <a class="sideitem" href="calendar.html" data-tip="Calendar"><img src="images/calendar.svg" alt="Calendar"></a>
+          <a class="sideitem" href="task.html" data-tip="Tasks"><img src="images/task.svg" alt="Tasks"></a>
+          <a class="sideitem" href="chat.html" data-tip="Messages"><img src="images/chat.svg" alt="Messages"></a>
+          <a class="sideitem" href="settings.html" data-tip="Settings"><img src="images/settings.svg" alt="Settings"></a>
+          <div class="side-spacer"></div>
+        </nav>
+      </aside>
+
+      <main class="main">
+        <section class="hero glass">
+          <h1 id="heroGreeting">Hi!</h1>
+          <p>What are your<br/>plans for today?</p>
+        </section>
+
+        <section class="quick">
+          <div class="tile glass strong">
+            <div class="time" id="clock">
+              <span id="clockTime">--:--</span>
+              <small id="clockMeridiem"></small>
+            </div>
+          </div>
+
+          <div class="tile glass tile-action">
+            <a class="tile-link" href="patients.html" aria-label="Add patient" data-tip="New patient">
+              <img class="tile-icon" src="images/addperson.svg" alt="Add patient" />
+            </a>
+          </div>
+
+          <div class="tile glass tile-action">
+            <a class="tile-link" href="chat.html" aria-label="Open messages" data-tip="New message">
+              <img class="tile-icon" src="images/chat.svg" alt="Messages" />
+              <span class="badge--count badge--hidden" id="msgBadge" aria-label="Unread messages">0</span>
+            </a>
+          </div>
+        </section>
+
+        <section class="notifications glass">
+          <div class="cardtitle">
+            <div>Notifications</div>
+
+            <div class="noti-tools">
+              <button class="dots" id="notiDots" aria-label="More">•••</button>
+              <div class="noti-menu" id="notiMenu" role="menu" aria-label="Notifications filter">
+                <button data-filter="all" class="is-active">All</button>
+                <button data-filter="unread">Unread</button>
+                <button data-filter="read">Read</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="scrollarea" id="notiList"></div>
+        </section>
+
+        <section class="calendar glass">
+          <div class="calhead">
+            <div id="calTitle">—</div>
+
+            <div class="calnav">
+              <button id="calPrev" aria-label="Prev">‹</button>
+              <button id="calToday" class="cal-today" type="button" aria-label="Today">Today</button>
+              <button id="calNext" aria-label="Next">›</button>
+            </div>
+          </div>
+
+          <div class="scrollarea">
+            <div class="cal-grid" id="calGrid" aria-label="Calendar days"></div>
+            <div class="agenda" id="agendaList" aria-label="Appointments list"></div>
+          </div>
+        </section>
+
+      
+        <section class="tasks glass">
+          <div class="taskshead">
+            <h3>Today tasks</h3>
+            <button class="btn primary" onclick="location.href='task.html'">+ New task</button>
+          </div>
+
+          <div class="scrollarea" id="taskList"></div>
+        </section>
+
+        <aside class="rightcol">
+          <div class="mini glass strong banner" id="todayBanner">
+            <div class="bannerTitle">Reach for the future</div>
+          </div>
+
+          <div class="progress glass">
+            <div class="progressTitle">Progress</div>
+
+            <div class="ringWrap" aria-label="Progress">
+              <svg class="ringSvg" viewBox="0 0 120 120" aria-hidden="true">
+                <circle class="ringTrack" cx="60" cy="60" r="50"></circle>
+                <circle id="progressCircle" class="ringValue" cx="60" cy="60" r="50"></circle>
+              </svg>
+              <div id="progressPct" class="ringPct">0%</div>
+            </div>
+
+            <div id="progressMeta" class="progressMeta">0/0 tasks</div>
+          </div>
+
+          <div class="mini glass patients-tile moving-blur">
+            <div class="patientsContent">
+              <div class="patientsLabel">Today</div>
+
+              <div class="patientsMain">
+                <span id="patientCount" class="patientsCount">0</span>
+                <span class="patientsUnit">patients</span>
+              </div>
+
+              <div class="patientsContext">Appointments</div>
+            </div>
+          </div>
+        </aside>
+      </main>
+    </div>
+  </div>
+
+  
+  <div id="statusPopover" class="status-popover" role="menu" hidden>
+    <button class="status-item" type="button" data-status="pending" role="menuitem">
+      <span class="s-dot" aria-hidden="true"></span>
+      To do
+    </button>
+    <button class="status-item" type="button" data-status="important" role="menuitem">
+      <span class="s-dot" aria-hidden="true"></span>
+      Important
+    </button>
+    <button class="status-item" type="button" data-status="blocked" role="menuitem">
+      <span class="s-dot" aria-hidden="true"></span>
+      Blocked
+    </button>
+    <button class="status-item" type="button" data-status="done" role="menuitem">
+      <span class="s-dot" aria-hidden="true"></span>
+      Done
+    </button>
+  </div>
+  <script>
+ 
+  const currentDoctorName =
+    localStorage.getItem("currentDoctorName") ||
+    localStorage.getItem("currentUserName") ||
+    localStorage.getItem("loggedUserName") ||
+    localStorage.getItem("doctorName") ||
+    "Dr Anna Nowak";
+
+ 
+  const toggle = document.getElementById("themeToggle");
+  const saved = localStorage.getItem("theme");
+
+  if (saved === "dark") {
+    document.body.classList.add("theme-dark");
+    toggle.checked = true;
+  }
+
+  toggle.addEventListener("change", () => {
+    const isDark = toggle.checked;
+    document.body.classList.toggle("theme-dark", isDark);
+    localStorage.setItem("theme", isDark ? "dark" : "light");
+  });
+
+ 
+  const clockTime = document.getElementById("clockTime");
+  const clockMeridiem = document.getElementById("clockMeridiem");
+
+  function pad2(n) { return String(n).padStart(2, "0"); }
+
+  function updateClock() {
+    const now = new Date();
+    let h = now.getHours();
+    const m = now.getMinutes();
+    const ampm = h >= 12 ? "PM" : "AM";
+    h = h % 12;
+    if (h === 0) h = 12;
+
+    clockTime.textContent = `${pad2(h)}:${pad2(m)}`;
+    clockMeridiem.textContent = ampm;
+  }
+
+  updateClock();
+  (function scheduleMinuteTick() {
+    const now = new Date();
+    const msToNextMinute = (60 - now.getSeconds()) * 1000 - now.getMilliseconds();
+    setTimeout(() => {
+      updateClock();
+      setInterval(updateClock, 60 * 1000);
+    }, msToNextMinute);
+  })();
+
+  
+  const msgBadge = document.getElementById("msgBadge");
+
+  function renderMsgBadge() {
+    const raw = localStorage.getItem("unreadMessages") || "0";
+    const count = Math.max(0, parseInt(raw, 10) || 0);
+    if (!msgBadge) return;
+
+    if (count <= 0) {
+      msgBadge.textContent = "0";
+      msgBadge.classList.add("badge--hidden");
+    } else {
+      msgBadge.textContent = String(count);
+      msgBadge.classList.remove("badge--hidden");
+    }
+  }
+
+  renderMsgBadge();
+
+  window.addEventListener("storage", (e) => {
+    if (e.key === "unreadMessages") renderMsgBadge();
+  });
+
+
+  const heroGreeting = document.getElementById("heroGreeting");
+  const userName = localStorage.getItem("userName");
+  const userIsDoctor = localStorage.getItem("userIsDoctor") === "true";
+
+  heroGreeting.textContent = userName
+    ? `Hi, ${userIsDoctor ? "doctor " : ""}${userName}!`
+    : "Hi!";
+
+  
+  const notiList = document.getElementById("notiList");
+  const notiDots = document.getElementById("notiDots");
+  const notiMenu = document.getElementById("notiMenu");
+
+  let notiFilter = localStorage.getItem("notiFilter") || "all"; 
+
+  const NOTIF_KEY = "notificationsData_v1";
+  const NOTIF_CHANNEL = "notifications_sync_v1";
+  const notiBC = ("BroadcastChannel" in window) ? new BroadcastChannel(NOTIF_CHANNEL) : null;
+
+  function notifyChanged(){
+    if (notiBC) notiBC.postMessage({ type:"changed", key: NOTIF_KEY, at: Date.now() });
+  }
+
+  function loadNotifications(){
+    try{
+      const raw = localStorage.getItem(NOTIF_KEY);
+      const arr = raw ? JSON.parse(raw) : [];
+      return Array.isArray(arr) ? arr : [];
+    }catch{
+      return [];
+    }
+  }
+
+  function saveNotifications(list){
+    localStorage.setItem(NOTIF_KEY, JSON.stringify(list));
+    notifyChanged();
+    renderDashboardNotifications();
+  }
+
+  function inbox(list){ return list.filter(n => !n.deletedAt); }
+
+  function markRead(id){
+    const list = loadNotifications();
+    const next = list.map(n => {
+      if (n.id !== id) return n;
+      if (!n.readAt) return { ...n, readAt: new Date().toISOString() };
+      return n;
+    });
+    saveNotifications(next);
+  }
+
+  function trashOne(id){
+    const list = loadNotifications();
+    const now = new Date().toISOString();
+    const next = list.map(n => (n.id === id ? { ...n, deletedAt: now } : n));
+    saveNotifications(next);
+  }
+
+  function escapeHTML(s){
+    return String(s ?? "")
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#039;");
+  }
+
+  function timeAgo(iso){
+    const t = new Date(iso).getTime();
+    const now = Date.now();
+    const sec = Math.max(1, Math.floor((now - t) / 1000));
+    const min = Math.floor(sec / 60);
+    const hr  = Math.floor(min / 60);
+    const day = Math.floor(hr / 24);
+    if (sec < 60) return "just now";
+    if (min < 60) return `${min} minute${min===1?"":"s"} ago`;
+    if (hr < 24)  return `${hr} hour${hr===1?"":"s"} ago`;
+    return `${day} day${day===1?"":"s"} ago`;
+  }
+
+  function updateNotiMenuUI(){
+    if (!notiMenu) return;
+    [...notiMenu.querySelectorAll("button[data-filter]")].forEach(b => {
+      b.classList.toggle("is-active", b.dataset.filter === notiFilter);
+    });
+  }
+
+  function renderDashboardNotifications(){
+    if (!notiList) return;
+
+    updateNotiMenuUI();
+
+    const list = inbox(loadNotifications())
+      .slice()
+      .sort((a,b) => new Date(b.createdAt) - new Date(a.createdAt))
+      .slice(0, 7);
+
+    const visible = list.filter(n => {
+      const isRead = !!n.readAt;
+      return (
+        notiFilter === "all" ||
+        (notiFilter === "unread" && !isRead) ||
+        (notiFilter === "read" && isRead)
+      );
+    });
+
+    if (!visible.length){
+      notiList.innerHTML = `<div style="padding:10px;opacity:.7;">No notifications.</div>`;
+      return;
+    }
+
+    notiList.innerHTML = visible.map(n => {
+      const isRead = !!n.readAt;
+      return `
+        <div class="noti ${isRead ? "is-read" : ""}" data-id="${escapeHTML(n.id)}">
+          <div>
+            <p>${escapeHTML(n.title)}</p>
+            <small>${escapeHTML(timeAgo(n.createdAt))} <span class="dot" aria-hidden="true"></span></small>
+          </div>
+          <button class="x" aria-label="Delete">✕</button>
+        </div>
+      `;
+    }).join("");
+  }
+
+  if (notiList){
+    notiList.addEventListener("click", (e) => {
+      const card = e.target.closest(".noti");
+      if (!card) return;
+
+      const id = card.getAttribute("data-id");
+      if (!id) return;
+
+      const x = e.target.closest(".x");
+      if (x){
+        e.stopPropagation();
+        trashOne(id);
+        return;
+      }
+      markRead(id);
+    });
+  }
+
+  if (notiDots && notiMenu){
+    notiDots.addEventListener("click", () => notiMenu.classList.toggle("open"));
+
+    document.addEventListener("click", (e) => {
+      if (!e.target.closest(".noti-tools")) notiMenu.classList.remove("open");
+    });
+
+    notiMenu.addEventListener("click", (e) => {
+      const btn = e.target.closest("button[data-filter]");
+      if (!btn) return;
+      notiFilter = btn.dataset.filter;
+      localStorage.setItem("notiFilter", notiFilter);
+      renderDashboardNotifications();
+    });
+  }
+
+  window.addEventListener("storage", (e) => {
+    if (e.key === NOTIF_KEY) renderDashboardNotifications();
+  });
+
+  if (notiBC){
+    notiBC.addEventListener("message", (ev) => {
+      if (ev?.data?.type === "changed") renderDashboardNotifications();
+    });
+  }
+
+  renderDashboardNotifications();
+
+  
+  const calTitle = document.getElementById("calTitle");
+  const calGrid = document.getElementById("calGrid");
+  const agendaList = document.getElementById("agendaList");
+  const calPrev = document.getElementById("calPrev");
+  const calNext = document.getElementById("calNext");
+  const calToday = document.getElementById("calToday");
+  const patientCountEl = document.getElementById("patientCount");
+
+  const VISITS_KEY = "patientVisits_v1";
+  const MEET_KEY   = "calendarMeetings_v1";
+
+  const CAL_PING_KEY = "calendarPing_v1";
+  const CAL_CHANNEL  = "calendar_sync_v1";
+  const calBC = ("BroadcastChannel" in window) ? new BroadcastChannel(CAL_CHANNEL) : null;
+
+  function safeParse(key, fallback){
+    try{
+      const raw = localStorage.getItem(key);
+      const v = raw ? JSON.parse(raw) : fallback;
+      return v ?? fallback;
+    }catch{
+      return fallback;
+    }
+  }
+
+  function loadVisitsSafe(){
+    const arr = safeParse(VISITS_KEY, []);
+    return Array.isArray(arr) ? arr : [];
+  }
+
+  function loadMeetingsSafe(){
+    const arr = safeParse(MEET_KEY, []);
+    return Array.isArray(arr) ? arr : [];
+  }
+
+  function toYMD(date){
+    const y = date.getFullYear();
+    const m = String(date.getMonth()+1).padStart(2,"0");
+    const d = String(date.getDate()).padStart(2,"0");
+    return `${y}-${m}-${d}`;
+  }
+
+  function eventsForDay(date){
+    const ymd = toYMD(date);
+
+    const visits = loadVisitsSafe()
+      .filter(v => v?.date === ymd)
+      .map(v => ({
+        id: v.id,
+        type: "patient",
+        date: v.date,
+        start: v.start,
+        end: v.end,
+        title: v.patientName || "Patient",
+        patient: v.patientName || "Patient"
+      }));
+
+    const meets = loadMeetingsSafe()
+      .filter(m => m?.date === ymd)
+      .map(m => ({
+        id: m.id,
+        type: "meeting",
+        date: m.date,
+        start: m.start,
+        end: m.end,
+        title: m.title || "Meeting"
+      }));
+
+    const all = [...visits, ...meets];
+    all.sort((a,b) => String(a.start||"").localeCompare(String(b.start||"")));
+    return all;
+  }
+
+  function getTodayMid() {
+    const now = new Date();
+    return new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  }
+
+  let selected = getTodayMid();
+  const dow = ["MON","TUE","WED","THU","FRI","SAT","SUN"];
+
+  function mondayIndex(d) { return (d + 6) % 7; }
+
+  function addDays(date, days) {
+    const d = new Date(date);
+    d.setDate(d.getDate() + days);
+    return d;
+  }
+
+  function sameYMD(a, b) {
+    return (
+      a.getFullYear() === b.getFullYear() &&
+      a.getMonth() === b.getMonth() &&
+      a.getDate() === b.getDate()
+    );
+  }
+
+  function startOfWeek(date) {
+    const d = new Date(date);
+    d.setDate(d.getDate() - mondayIndex(d.getDay()));
+    return d;
+  }
+
+  function formatSelectedDateTitle(date) {
+    const fmt = new Intl.DateTimeFormat("en-GB", {
+      weekday:"long", day:"2-digit", month:"long", year:"numeric"
+    });
+    return fmt.format(date);
+  }
+
+  function renderCalendar() {
+    if (!calGrid || !calTitle) return;
+
+    calGrid.innerHTML = "";
+    calTitle.textContent = formatSelectedDateTitle(selected);
+
+    const weekStart = startOfWeek(selected);
+
+    for (const d of dow) {
+      const h = document.createElement("div");
+      h.className = "cal-dow";
+      h.textContent = d;
+      calGrid.appendChild(h);
+    }
+
+    for (let i = 0; i < 7; i++) {
+      const date = addDays(weekStart, i);
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "daycell";
+      btn.textContent = date.getDate();
+
+      if (sameYMD(date, getTodayMid())) btn.classList.add("is-today");
+      if (sameYMD(date, selected)) btn.classList.add("is-selected");
+
+      btn.addEventListener("click", () => {
+        selected = new Date(date);
+        renderCalendar();
+        renderAgenda();
+      });
+
+      calGrid.appendChild(btn);
+    }
+  }
+
+  function renderAgenda() {
+    if (!agendaList) return;
+    agendaList.innerHTML = "";
+
+    let dayEvents = eventsForDay(selected);
+
+    if (patientCountEl) patientCountEl.textContent = String(dayEvents.length);
+
+    if (!dayEvents.length) {
+      agendaList.innerHTML = `<div style="padding:10px;opacity:.7;">No appointments.</div>`;
+      return;
+    }
+
+    const visible = dayEvents.slice(0, 6);
+
+    for (const ev of visible) {
+      const time = ev.start || "--:--";
+      const name = ev.patient || ev.title || "Appointment";
+
+      const row = document.createElement("div");
+      row.className = "slot";
+      row.innerHTML = `
+        <span>${time}</span>
+        <span class="pillperson">
+          <img src="images/person.svg" alt="" />
+          ${name}
+        </span>
+      `;
+      agendaList.appendChild(row);
+    }
+  }
+
+  function refreshCalendarWidget(){
+    renderCalendar();
+    renderAgenda();
+  }
+
+  if (calPrev) calPrev.addEventListener("click", () => {
+    selected = addDays(selected, -7);
+    refreshCalendarWidget();
+  });
+
+  if (calNext) calNext.addEventListener("click", () => {
+    selected = addDays(selected, +7);
+    refreshCalendarWidget();
+  });
+
+  if (calToday) calToday.addEventListener("click", () => {
+    selected = getTodayMid();
+    refreshCalendarWidget();
+  });
+
+  window.addEventListener("storage", (e) => {
+    if (!e.key) return;
+    if (e.key === VISITS_KEY || e.key === MEET_KEY || e.key === CAL_PING_KEY) {
+      refreshCalendarWidget();
+    }
+  });
+
+  if (calBC){
+    calBC.addEventListener("message", (ev) => {
+      if (ev?.data?.type === "changed") refreshCalendarWidget();
+    });
+  }
+
+  refreshCalendarWidget();
+
+  
+  const taskList = document.getElementById("taskList");
+  const statusPopover = document.getElementById("statusPopover");
+
+  let currentTask = null;
+  let currentPill = null;
+
+  const TASKS_KEY = "tasksData_v1";
+  const TASKS_PING_KEY = "tasksPing_v1";
+  const TASKS_CHANNEL = "tasks_sync_v1";
+
+  const tasksBC = ("BroadcastChannel" in window) ? new BroadcastChannel(TASKS_CHANNEL) : null;
+
+  
+  const STATUS_LABEL = {
+    pending: "To do",
+    important: "Important",
+    blocked: "Blocked",
+    done: "Done"
+  };
+
+  
+  let progressPool = [];
+
+  function safeJSONParseTasks(raw, fallback){
+    try{
+      const v = raw ? JSON.parse(raw) : null;
+      return (v === null || v === undefined) ? fallback : v;
+    }catch{
+      return fallback;
+    }
+  }
+
+  function loadTasksDataV1(){
+    const arr = safeJSONParseTasks(localStorage.getItem(TASKS_KEY), []);
+    return Array.isArray(arr) ? arr : [];
+  }
+
+  function saveTasksDataV1(arr){
+    localStorage.setItem(TASKS_KEY, JSON.stringify(arr));
+    localStorage.setItem(TASKS_PING_KEY, String(Date.now()));
+
+    if ("BroadcastChannel" in window){
+      const bc = new BroadcastChannel(TASKS_CHANNEL);
+      bc.postMessage({ type:"changed", key: TASKS_KEY, at: Date.now() });
+      bc.close();
+    }
+  }
+
+
+  function mapStatusToDashboard(s){
+    if (s === "todo") return "pending";
+    if (s === "important") return "important";
+    if (s === "blocked") return "blocked";
+    if (s === "done") return "done";
+    return "pending";
+  }
+
+
+  function mapStatusToTasksPage(dashStatus){
+    if (dashStatus === "pending") return "todo";
+    if (dashStatus === "important") return "important";
+    if (dashStatus === "blocked") return "blocked";
+    if (dashStatus === "done") return "done";
+    return "todo";
+  }
+
+  function isoToDDMMYYYY(iso){
+    const [y,m,d] = String(iso || "").split("-").map(Number);
+    if (!y || !m || !d) return "";
+    const dd = String(d).padStart(2,"0");
+    const mm = String(m).padStart(2,"0");
+    return `${dd}/${mm}/${y}`;
+  }
+
+  function escapeHTML2(s){
+    return String(s ?? "")
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#039;");
+  }
+
+  
+  function renderTasksFromTasksPage(){
+    if (!taskList) return;
+
+    const all = loadTasksDataV1();
+
+ 
+    let mine = all.filter(t => t && t.assignedTo === currentDoctorName);
+
+   
+    mine.sort((a,b) => {
+      const da = String(a.dueDate || "");
+      const db = String(b.dueDate || "");
+      if (da !== db) return da.localeCompare(db);
+      return (b.createdAt||0) - (a.createdAt||0);
+    });
+
+  
+    progressPool = mine.slice(0, 12);
+
+    const visible = progressPool.filter(t => t.status !== "done");
+
+    if (!visible.length){
+      taskList.innerHTML = `<div style="padding:10px;opacity:.7;">No tasks.</div>`;
+      computeProgress();
+      return;
+    }
+
+    taskList.innerHTML = visible.map(t => {
+      const dashStatus = mapStatusToDashboard(t.status);
+      const dueDD = isoToDDMMYYYY(t.dueDate);
+
+      return `
+        <div class="task" data-task-id="${escapeHTML2(t.id)}" data-status="${dashStatus}" data-due="${escapeHTML2(dueDD)}">
+          <div>
+            <div class="meta">From: ${escapeHTML2(t.source || "—")}</div>
+            <div class="title">${escapeHTML2(t.title || "—")}</div>
+            <div class="due">Due: ${escapeHTML2(dueDD || "—")}</div>
+          </div>
+
+          <div class="task-status-wrap">
+            <button class="task-status-pill" type="button" aria-haspopup="menu" aria-expanded="false">
+              <span class="task-status-dot" aria-hidden="true"></span>
+              <span class="task-status-label">To do</span>
+              <span class="task-status-chevron" aria-hidden="true">▾</span>
+            </button>
+          </div>
+        </div>
+      `;
+    }).join("");
+
+    loadTaskStatusesFromV1();
+    updateDueExperience();
+    computeProgress();
+  }
+
+  
+  function parseDDMMYYYY(s) {
+    const m = String(s).trim().match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
+    if (!m) return null;
+    const dd = parseInt(m[1], 10);
+    const mm = parseInt(m[2], 10) - 1;
+    const yy = parseInt(m[3], 10);
+    return new Date(yy, mm, dd);
+  }
+
+  function daysDiff(a, b) {
+    const ms = a.getTime() - b.getTime();
+    return Math.round(ms / (1000 * 60 * 60 * 24));
+  }
+
+  function updateDueExperience() {
+    const tasks = document.querySelectorAll(".tasks .task");
+    const now = new Date();
+    const todayMid = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+
+    tasks.forEach((t) => {
+      const dueStr = t.getAttribute("data-due");
+      const dueEl = t.querySelector(".due");
+      if (!dueStr || !dueEl) return;
+
+      const dueDate = parseDDMMYYYY(dueStr);
+      if (!dueDate) return;
+
+      const diff = daysDiff(dueDate, todayMid);
+      const old = dueEl.querySelector(".rel");
+      if (old) old.remove();
+
+      const rel = document.createElement("span");
+      rel.className = "rel";
+
+      if (diff < 0) {
+        rel.textContent = `Overdue by ${Math.abs(diff)} day(s)`;
+        rel.classList.add("is-overdue");
+      } else if (diff === 0) {
+        rel.textContent = "Due today";
+        rel.classList.add("is-soon");
+      } else if (diff <= 3) {
+        rel.textContent = `Due in ${diff} day(s)`;
+        rel.classList.add("is-soon");
+      } else {
+        rel.textContent = `Due in ${diff} day(s)`;
+      }
+
+      dueEl.appendChild(rel);
+    });
+  }
+
+ 
+  function computeProgress() {
+    const totalTasks = progressPool.length;
+    const done = progressPool.filter(t => t && t.status === "done").length;
+
+    const p = totalTasks > 0 ? (done / totalTasks) : 0;
+    const pct = Math.round(p * 100);
+
+    const circle = document.getElementById("progressCircle");
+    const pctEl = document.getElementById("progressPct");
+    const metaEl = document.getElementById("progressMeta");
+
+    if (pctEl) pctEl.textContent = `${pct}%`;
+    if (metaEl) metaEl.textContent = `${done}/${totalTasks} tasks`;
+
+    if (circle) {
+      const r = 50;
+      const c = 2 * Math.PI * r;
+      circle.style.strokeDasharray = `${c}`;
+      circle.style.strokeDashoffset = `${c * (1 - p)}`;
+    }
+  }
+
+  function setTaskStatusUI(taskEl, status) {
+    taskEl.setAttribute("data-status", status);
+    const label = taskEl.querySelector(".task-status-label");
+    if (label) label.textContent = STATUS_LABEL[status] || "To do";
+  }
+
+  function loadTaskStatusesFromV1() {
+    const v1 = loadTasksDataV1();
+    const map = new Map(v1.map(t => [t.id, t]));
+
+    document.querySelectorAll(".tasks .task").forEach((el) => {
+      const id = el.getAttribute("data-task-id");
+      const t = id ? map.get(id) : null;
+      const dashStatus = t ? mapStatusToDashboard(t.status) : (el.getAttribute("data-status") || "pending");
+      setTaskStatusUI(el, dashStatus);
+    });
+  }
+
+
+  function openPopoverFor(pillBtn, taskEl) {
+    currentTask = taskEl;
+    currentPill = pillBtn;
+
+    const current = taskEl.getAttribute("data-status") || "pending";
+
+    statusPopover.querySelectorAll(".status-item").forEach((b) => {
+      b.classList.toggle("is-active", b.dataset.status === current);
+    });
+
+    const r = pillBtn.getBoundingClientRect();
+    const gap = 10;
+
+    statusPopover.hidden = false;
+    const popRect = statusPopover.getBoundingClientRect();
+
+    let left = r.right - popRect.width;
+    let top = r.bottom + gap;
+
+    left = Math.max(12, Math.min(left, window.innerWidth - popRect.width - 12));
+    top = Math.max(12, Math.min(top, window.innerHeight - popRect.height - 12));
+
+    statusPopover.style.left = left + "px";
+    statusPopover.style.top = top + "px";
+
+    pillBtn.setAttribute("aria-expanded", "true");
+  }
+
+  function closePopover() {
+    statusPopover.hidden = true;
+    if (currentPill) currentPill.setAttribute("aria-expanded", "false");
+    currentTask = null;
+    currentPill = null;
+  }
+
+ 
+  document.addEventListener("click", (e) => {
+    const pill = e.target.closest(".task-status-pill");
+
+    if (pill) {
+      const task = pill.closest(".task");
+      if (!task) return;
+
+      if (!statusPopover.hidden && currentPill === pill) {
+        closePopover();
+      } else {
+        openPopoverFor(pill, task);
+      }
+      return;
+    }
+
+    const item = e.target.closest("#statusPopover .status-item[data-status]");
+    if (item) {
+      if (!currentTask) return;
+
+      const dashStatus = item.dataset.status; 
+      const taskId = currentTask.getAttribute("data-task-id");
+
+      if (taskId) {
+        const tasks = loadTasksDataV1();
+        const idx = tasks.findIndex(t => t && t.id === taskId);
+
+        if (idx !== -1) {
+          const assignedTo = tasks[idx]?.assignedTo;
+          if (assignedTo !== currentDoctorName) {
+            alert("Only the assignee can change status.");
+            closePopover();
+            return;
+          }
+
+          const newStatus = mapStatusToTasksPage(dashStatus);
+          tasks[idx] = { ...tasks[idx], status: newStatus, statusUpdatedAt: Date.now() };
+          saveTasksDataV1(tasks);
+        }
+      }
+
+      renderTasksFromTasksPage();
+
+      closePopover();
+      return;
+    }
+
+    if (!e.target.closest("#statusPopover") && !e.target.closest(".task-status-wrap")) {
+      if (!statusPopover.hidden) closePopover();
+    }
+  });
+
+  if (taskList) {
+    taskList.addEventListener("scroll", () => {
+      if (!statusPopover.hidden) closePopover();
+    }, { passive: true });
+  }
+
+  window.addEventListener("resize", () => {
+    if (!statusPopover.hidden) closePopover();
+  });
+
+  window.addEventListener("scroll", () => {
+    if (!statusPopover.hidden) closePopover();
+  }, { passive: true });
+
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && !statusPopover.hidden) closePopover();
+  });
+
+  renderTasksFromTasksPage();
+  updateDueExperience();
+  computeProgress();
+  setInterval(updateDueExperience, 60 * 60 * 1000);
+
+  window.addEventListener("storage", (e) => {
+    if (e.key === TASKS_KEY || e.key === TASKS_PING_KEY) {
+      renderTasksFromTasksPage();
+      updateTasksBadgeGlobal();
+    }
+  });
+
+  if (tasksBC){
+    tasksBC.addEventListener("message", (ev) => {
+      if (ev?.data?.type === "changed") {
+        renderTasksFromTasksPage();
+        updateTasksBadgeGlobal();
+      }
+    });
+  }
+
+  function ensureSidebarUnreadBadge(){
+    let badge = document.getElementById("sidebarUnreadBadge");
+    if (badge) return badge;
+
+    const notifLink =
+      document.querySelector('.sidenav a[href="notifications.html"]') ||
+      document.querySelector('.sidenav a[data-tip="Notifications"]');
+
+    if (!notifLink) return null;
+
+    badge = document.createElement("span");
+    badge.className = "sideBadge";
+    badge.id = "sidebarUnreadBadge";
+    badge.setAttribute("aria-hidden","true");
+    badge.textContent = "0";
+    notifLink.appendChild(badge);
+    return badge;
+  }
+
+  function loadNotificationsSafe(){
+    try{
+      const raw = localStorage.getItem(NOTIF_KEY);
+      const arr = raw ? JSON.parse(raw) : [];
+      return Array.isArray(arr) ? arr : [];
+    }catch{
+      return [];
+    }
+  }
+
+  function countUnread(list){
+    return list.reduce((acc,n) => acc + (!n?.deletedAt && !n?.readAt ? 1 : 0), 0);
+  }
+
+  function updateUnreadBadge(){
+    const badge = document.getElementById("sidebarUnreadBadge") || ensureSidebarUnreadBadge();
+    if (!badge) return;
+
+    const list = loadNotificationsSafe();
+    const unread = countUnread(list);
+
+    if (unread > 0){
+      badge.style.display = "block";
+      badge.textContent = String(unread);
+      badge.classList.add("pulse");
+    } else {
+      badge.style.display = "none";
+      badge.classList.remove("pulse");
+    }
+  }
+
+  updateUnreadBadge();
+
+  window.addEventListener("storage", (e) => {
+    if (e.key === NOTIF_KEY) updateUnreadBadge();
+  });
+
+  if (notiBC){
+    notiBC.addEventListener("message", (ev) => {
+      if (ev?.data?.type === "changed") updateUnreadBadge();
+    });
+  }
+
+  function ensureSidebarTasksBadge(){
+    let badge = document.getElementById("sidebarTasksBadge");
+    if (badge) return badge;
+
+    const tasksLink =
+      document.querySelector('.sidenav a[href="task.html"]') ||
+      document.querySelector('.sidenav a[data-tip="Tasks"]');
+
+    if (!tasksLink) return null;
+
+    badge = document.createElement("span");
+    badge.className = "sideBadge";
+    badge.id = "sidebarTasksBadge";
+    badge.setAttribute("aria-hidden","true");
+    badge.textContent = "0";
+    tasksLink.appendChild(badge);
+    return badge;
+  }
+
+  function fromISODate(s){
+    const [y,m,d] = String(s).split("-").map(Number);
+    return new Date(y, (m||1)-1, d||1);
+  }
+  function startOfDay(d){
+    const x = new Date(d);
+    x.setHours(0,0,0,0);
+    return x;
+  }
+  function daysDiffFromNow(toDate){
+    const now = startOfDay(new Date()).getTime();
+    const b = startOfDay(toDate).getTime();
+    return Math.round((b - now) / (24*60*60*1000));
+  }
+
+  function updateTasksBadgeGlobal(){
+    const badge = document.getElementById("sidebarTasksBadge") || ensureSidebarTasksBadge();
+    if (!badge) return;
+
+    const tasks = loadTasksDataV1();
+    const mineOpen = tasks.filter(t =>
+      t && t.status !== "done" && t.assignedTo === currentDoctorName
+    );
+
+    const count = mineOpen.reduce((acc, t) => {
+      const due = fromISODate(t.dueDate);
+      const diff = daysDiffFromNow(due);
+      if (diff < 0) return acc + 1;
+      if (diff <= 2) return acc + 1;
+      return acc;
+    }, 0);
+
+    if (count > 0){
+      badge.style.display = "block";
+      badge.textContent = String(count);
+      badge.classList.add("pulse");
+    } else {
+      badge.style.display = "none";
+      badge.classList.remove("pulse");
+    }
+  }
+
+  updateTasksBadgeGlobal();
+</script>
+</body>
+</html>

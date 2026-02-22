@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <title>PLANMED – Rejestracja</title>
+
+  <link rel="preload" as="image" href="images/dd.png">
+  <link rel="preload" as="image" href="images/logobia.png">
+
+  <style>
+    .glass-input{
+      background: rgba(255,255,255,0.22);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      border: 1px solid rgba(255,255,255,0.45);
+      box-shadow: 0 10px 26px rgba(0,0,0,0.12), inset 0 1px 0 rgba(255,255,255,0.25);
+    }
+
+    .layer-content{
+      position: relative;
+      z-index: 2;
+    }
+
+    .focus-ring:focus{
+      outline: none;
+      box-shadow: 0 0 0 2px rgba(255,255,255,0.35);
+    }
+  </style>
+</head>
+
+<body class="min-h-screen overflow-hidden bg-[#003648]">
+
+<section class="fixed inset-0 overflow-hidden">
+
+
+  <div class="absolute inset-0 -z-20 bg-[#cfdde6] pointer-events-none">
+    <img src="images/dd.png" alt="Background" class="w-full h-full object-cover" />
+    <div class="absolute inset-0 bg-gradient-to-r from-white/40 via-white/10 to-black/10"></div>
+  </div>
+
+
+  <a href="planmed.html"
+     class="layer-content absolute top-6 left-6 md:top-8 md:left-8 inline-flex items-center z-50">
+    <img
+      src="images/logobia.png"
+      alt="PLANMED"
+      class="h-5 md:h-6 w-auto opacity-100 brightness-125 saturate-150
+             drop-shadow-[0_12px_30px_rgba(0,0,0,0.45)]"
+    />
+  </a>
+
+  
+  <main class="layer-content h-full w-full">
+    <div class="h-full w-[92vw] max-w-[1200px] mx-auto
+                grid grid-cols-1 lg:grid-cols-[1fr_420px]
+                gap-10 items-center py-10 md:py-14">
+
+ 
+      <section class="pt-6 lg:pt-0">
+        <h1 class="text-[#224C5D] font-extrabold leading-[1.05] tracking-tight drop-shadow
+                   text-4xl sm:text-5xl md:text-6xl">
+          <span class="block">Don’t wait</span>
+          <span class="block mt-2">for great</span>
+        </h1>
+
+        <p class="mt-7 text-[#224C5D]/80 text-base md:text-lg max-w-[42ch]">
+          Create your account and start planning in minutes.
+        </p>
+      </section>
+
+   
+      <section class="w-full">
+        <form id="registerForm" class="space-y-4 md:space-y-5" method="post" action="#">
+
+          <div>
+            <label for="firstName" class="block text-white/90 font-semibold text-lg mb-2">First name</label>
+            <input
+              id="firstName"
+              name="firstName"
+              type="text"
+              placeholder="John"
+              autocomplete="given-name"
+              required
+              maxlength="50"
+              class="w-full h-12 px-5 rounded-2xl glass-input
+                     text-white/95 placeholder-white/55 focus-ring"
+            />
+          </div>
+
+          <div>
+            <label for="lastName" class="block text-white/90 font-semibold text-lg mb-2">Last name</label>
+            <input
+              id="lastName"
+              name="lastName"
+              type="text"
+              placeholder="Smith"
+              autocomplete="family-name"
+              required
+              maxlength="50"
+              class="w-full h-12 px-5 rounded-2xl glass-input
+                     text-white/95 placeholder-white/55 focus-ring"
+            />
+          </div>
+
+          <div>
+            <label for="email" class="block text-white/90 font-semibold text-lg mb-2">E-mail</label>
+            <input
+              id="email"
+              name="email"
+              type="email"
+              placeholder="name@example.com"
+              autocomplete="email"
+              inputmode="email"
+              required
+              maxlength="254"
+              class="w-full h-12 px-5 rounded-2xl glass-input
+                     text-white/95 placeholder-white/55 focus-ring"
+            />
+            <p id="emailError" class="mt-2 text-sm text-red-200 hidden">
+              Please enter a valid email.
+            </p>
+          </div>
+
+          <div>
+            <label for="password" class="block text-white/90 font-semibold text-lg mb-2">Password</label>
+            <input
+              id="password"
+              name="password"
+              type="password"
+              autocomplete="new-password"
+              required
+              minlength="8"
+              maxlength="128"
+              class="w-full h-12 px-5 rounded-2xl glass-input
+                     text-white/95 placeholder-white/55 focus-ring"
+            />
+          </div>
+
+          <div>
+            <label for="password2" class="block text-white/90 font-semibold text-lg mb-2">Repeat password</label>
+            <input
+              id="password2"
+              name="password2"
+              type="password"
+              autocomplete="new-password"
+              required
+              minlength="8"
+              maxlength="128"
+              class="w-full h-12 px-5 rounded-2xl glass-input
+                     text-white/95 placeholder-white/55 focus-ring"
+            />
+            <p id="passError" class="mt-2 text-sm text-red-200 hidden">
+              Passwords do not match.
+            </p>
+          </div>
+
+          <label class="flex items-center gap-3 pt-1 select-none">
+            <input
+              type="checkbox"
+              name="isDoctor"
+              class="h-5 w-5 rounded-md border border-white/40 bg-white/10 accent-white/80"
+            />
+            <span class="text-white/85 font-semibold">I’m a doctor</span>
+          </label>
+
+          <div class="pt-3 flex justify-end">
+            <button
+              type="submit"
+              class="h-11 px-10 rounded-full bg-white/18 backdrop-blur-md
+                     border border-white/35
+                     text-white/95 font-semibold transition
+                     hover:bg-white/26 hover:-translate-y-0.5">
+              Register
+            </button>
+          </div>
+
+          <div class="pt-2 text-right">
+            <a href="login.html"
+               class="text-white/75 hover:text-white font-semibold text-sm transition">
+              I already have an account
+            </a>
+          </div>
+
+        </form>
+      </section>
+
+    </div>
+  </main>
+</section>
+
+<script>
+  const form = document.getElementById('registerForm');
+  const email = document.getElementById('email');
+  const emailError = document.getElementById('emailError');
+  const p1 = document.getElementById('password');
+  const p2 = document.getElementById('password2');
+  const passError = document.getElementById('passError');
+
+  function validEmail(v){
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
+  }
+
+  form.addEventListener('submit', (e) => {
+    emailError.classList.add('hidden');
+    passError.classList.add('hidden');
+
+   
+    email.value = email.value.trim();
+
+    
+    if (!validEmail(email.value)){
+      e.preventDefault();
+      emailError.classList.remove('hidden');
+      return;
+    }
+
+   
+    if (p1.value.length < 8){
+      e.preventDefault();
+      passError.textContent = 'Password must be at least 8 characters.';
+      passError.classList.remove('hidden');
+      return;
+    }
+
+  
+    if (p1.value !== p2.value){
+      e.preventDefault();
+      passError.textContent = 'Passwords do not match.';
+      passError.classList.remove('hidden');
+      return;
+    }
+  });
+</script>
+
+</body>
+</html>

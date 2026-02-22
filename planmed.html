@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <title>PLANMED</title>
+  <style>
+ 
+    @keyframes slide-right-once {
+      0% { opacity: 0; transform: translateX(100vw); }
+      100% { opacity: 1; transform: translateX(0); }
+    }
+    @keyframes slide-left-once {
+      0% { opacity: 0; transform: translateX(100vw); }
+      100% { opacity: 1; transform: translateX(0); }
+    }
+    @keyframes slide-img-modern {
+      0% { opacity: 0; transform: translateX(100vw) translateY(0) scale(0.95); }
+      60% { opacity: 1; transform: translateX(-13rem) translateY(-6rem) scale(1); }
+      100% { transform: translateX(-9rem) translateY(-6rem) scale(1); }
+    }
+    .animate-slide-right-once { animation: slide-right-once 4s cubic-bezier(.68,-0.55,.27,1.55) forwards; }
+    .animate-slide-left-once { animation: slide-left-once 4s cubic-bezier(.68,-0.55,.27,1.55) forwards; }
+    .animate-slide-img-modern { animation: slide-img-modern 4s cubic-bezier(.68,-0.55,.27,1.55) forwards; }
+    .delay-100 { animation-delay: 0.1s; }
+    .delay-200 { animation-delay: 0.2s; }
+
+    #after-heading-img { transition: transform 0.5s ease-in-out; }
+    @media (max-width: 1024px) { #after-heading-img { transform: translateX(-5rem) translateY(-3rem) scale(1); } }
+    @media (max-width: 768px) { #after-heading-img { transform: translateX(0) translateY(0) scale(1); width: 80%; margin-top: 1rem; } }
+
+    .ios-glass {
+      background: rgba(255,255,255,0.18);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-radius: 20px;
+      padding: 14px 18px;
+      border: 1px solid rgba(255,255,255,0.35);
+      box-shadow: 0 12px 30px rgba(0,0,0,0.08), inset 0 1px 0 rgba(255,255,255,0.25);
+      transition: all .35s ease;
+    }
+
+    .ios-hover:hover {
+      transform: translateY(-4px) scale(1.02);
+      box-shadow: 0 20px 50px rgba(0,0,0,0.18), inset 0 1px 0 rgba(255,255,255,0.35);
+    }
+
+.notif-layer{
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 30;
+}
+
+.notif{
+  position: absolute;
+  width: 280px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 999px;
+
+ 
+  background: rgba(0,203,218,.16);
+  border: 1px solid rgba(0,203,218,.30);
+
+
+  backdrop-filter: blur(10px) saturate(125%);
+  -webkit-backdrop-filter: blur(10px) saturate(125%);
+
+ 
+  color: rgba(9, 24, 28, .92); 
+  box-shadow: 0 10px 28px rgba(0, 0, 0, .12);
+
+  opacity: 0;
+  transform: translateY(6px) scale(.98);
+  animation: notifPop 9s ease-in-out infinite;
+}
+
+
+.notif-left  { left: 24px; }
+.notif-right { right: 24px; }
+
+
+.slot-1 { top: 18%; }
+.slot-2 { top: 28%; }
+.slot-3 { top: 40%; }
+.slot-4 { top: 52%; }
+.slot-5 { top: 64%; }
+.slot-6 { top: 76%; }
+
+
+.notif .avatar{
+  width: 30px;
+  height: 30px;
+  border-radius: 999px;
+  display: grid;
+  place-items: center;
+  font-weight: 700;
+  font-size: 12px;
+  color: rgba(255,255,255,.95);
+  background: rgba(0,203,218,.85);
+  border: 1px solid rgba(255,255,255,.35);
+}
+
+.notif .title{ font-weight: 600; font-size: 14px; line-height: 1.1; }
+.notif .meta { font-size: 12px; opacity: .72; margin-top: 2px; }
+
+
+@keyframes notifPop{
+  0%, 12%   { opacity: 0; transform: translateY(10px) scale(.98); filter: blur(2px); }
+  18%, 72%  { opacity: 1; transform: translateY(0)   scale(1);    filter: blur(0); }
+  80%, 100% { opacity: 0; transform: translateY(-10px) scale(.98); filter: blur(2px); }
+}
+
+
+.d1 { animation-delay: 0s; }
+.d2 { animation-delay: 1.2s; }
+.d3 { animation-delay: 2.4s; }
+.d4 { animation-delay: 3.6s; }
+.d5 { animation-delay: 4.8s; }
+.d6 { animation-delay: 6.0s; }
+
+
+@media (prefers-contrast: more){
+  .notif{
+    background: rgba(0,203,218,.22);
+    border-color: rgba(0,203,218,.38);
+  }
+}
+.iphone-glow::before{
+  content: "";
+  position: absolute;
+  inset: auto 10% -6% 10%;
+  height: 38%;
+
+
+  background: radial-gradient(
+    ellipse at center,
+    rgba(0,203,218,.35),
+    rgba(0,203,218,.18) 40%,
+    rgba(0,203,218,.06) 65%,
+    transparent 72%
+  );
+
+  filter: blur(42px);
+  z-index: 0;
+  pointer-events: none;
+}
+
+
+  </style>
+</head>
+
+<body class="bg-[#cfdde6] overflow-x-hidden">
+
+
+<header class="relative px-8 py-6">
+  
+  <div class="absolute -top-40 -left-[550px] w-[1224px] h-[812px] bg-[#a6b4bf] rounded-full rotate-[91deg] filter blur-[250px]"></div>
+  <div class="absolute top-[145px] left-[472px] w-[512px] h-[719px] bg-[#dee7f2] rounded-[50%] filter blur-[100px]"></div>
+
+  <div class="flex items-center translate-y-[1px]">
+  <img
+    src="images/logog.png"
+    alt="PLANMED"
+    class="h-4 md:h-6 w-auto opacity-100"
+  />
+</div>
+
+
+  <nav class="absolute top-8 left-1/2 transform -translate-x-1/2 flex space-x-4 md:space-x-12 text-[#2d3a46] text-base md:text-lg font-medium items-center">
+    <a href="about.html" class="hover:text-white transition-colors duration-200">About</a>
+    <a href="#healing" class="hover:text-white transition-colors duration-200">Product</a>
+    <a href="support.html" class="hover:text-white transition-colors duration-200">Support</a>
+  </nav>
+
+<div class="absolute top-6 right-8 h-10 flex items-center">
+  <a href="login.html">
+    <button
+      class="
+        h-10 px-6 rounded-full
+        bg-white/30 backdrop-blur-md backdrop-saturate-150
+        border border-white/50
+        shadow-[0_14px_30px_rgba(0,0,0,0.18)]
+        text-[#224c5d] text-base md:text-lg font-semibold
+        transition-all duration-200
+        hover:bg-white/40 hover:-translate-y-0.5
+      "
+    >
+      Log in
+    </button>
+  </a>
+</div>
+
+
+</header>
+
+<section class="relative px-8 mt-32">
+  <div class="flex flex-col lg:flex-row items-center justify-center gap-16 relative">
+
+    <h1 class="text-left font-bold text-[#dee7f2cc] leading-none text-[128px] md:text-[128px] sm:text-[72px] z-10">
+      <span class="block mb-4 animate-slide-right-once">Plan</span>
+      <span class="block mb-4 animate-slide-left-once delay-100">Treat</span>
+      <span class="block animate-slide-left-once delay-200">
+        <span class="text-[#A9D1DF]">&</span> Repeat
+      </span>
+    </h1>
+
+   
+    <img id="after-heading-img" src="images/Mlogo.png" alt="After Header"
+         class="w-[400px] md:w-[500px] sm:w-[300px] relative animate-slide-img-modern">
+  </div>
+</section>
+
+
+<section class="relative w-full min-h-screen overflow-hidden">
+  <div class="absolute inset-0">
+    <img src="images/img.png" alt="Hero Illustration" class="w-full h-full object-cover">
+  </div>
+  <div class="absolute top-0 left-0 w-full h-48 pointer-events-none">
+    <div class="w-full h-full bg-gradient-to-b from-[#0f172a] via-[#45D2DF]/30 to-transparent blur-3xl"></div>
+  </div>
+  <div class="absolute bottom-0 left-0 w-full h-64 pointer-events-none">
+    <div class="w-full h-full bg-gradient-to-b from-transparent via-[#45D2DF]/50 to-[#0f172a] blur-3xl"></div>
+  </div>
+  <div class="relative z-10 max-w-7xl mx-auto px-8 flex flex-col lg:flex-row items-start h-full">
+    <div class="flex-1 max-w-xl text-white mt-16 lg:mt-21">
+      <p class="text-3xl md:text-4xl lg:text-5xl leading-snug">
+        In life, you should never waste two things — 
+        <span class="text-[#0199ad]">time</span> and 
+        <span class="text-[#0199ad]">health</span>. Therefore, save time on treatment planning.
+      </p>
+      <div class="mt-8">
+       <a href="login.html">
+  <button class="h-10 px-6
+    md:h-12 md:px-8
+    lg:h-14 lg:px-10
+    bg-white/15 backdrop-blur-sm
+    rounded-full
+    text-[#2D6071] text-lg md:text-xl font-semibold
+    hover:bg-white/25 hover:scale-105
+    transition-all duration-200
+    flex items-center justify-center">
+    Create a plan
+  </button>
+</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<section id="healing" class="relative w-full min-h-screen overflow-hidden">
+  <div class="absolute inset-0">
+    <img src="images/tlo.jpg" alt="Healing background" class="w-full h-full object-cover" />
+  </div>
+
+  <div class="absolute top-0 left-0 w-full h-48 pointer-events-none">
+    <div class="w-full h-full bg-gradient-to-b from-[#0f172a] via-[#45D2DF]/30 to-transparent blur-3xl"></div>
+  </div>
+
+  <div class="relative z-10 max-w-7xl mx-auto px-8 w-full
+              min-h-screen
+              flex flex-col items-center text-center
+              pt-24 md:pt-32
+              pb-20">
+
+    <h2 class="font-semibold text-[#e4f2ff] text-[40px] sm:text-[52px] md:text-[64px] lg:text-[72px] tracking-tight">
+      Healing by design
+    </h2>
+
+    <p class="mt-6 max-w-3xl text-[#edf4fd] text-[16px] sm:text-[18px] md:text-[22px] lg:text-[24px] leading-relaxed">
+      An intuitive application that supports medical staff in effectively planning patient treatment and coordinating
+      medical procedures.
+    </p>
+
+ 
+    <div class="mt-10 md:mt-16
+                scale-[0.85]
+                sm:scale-90
+                md:scale-95
+                lg:scale-100
+                origin-top
+                transition-transform duration-300">
+
+      <div class="grid grid-cols-2 gap-x-20 gap-y-16">
+
+     
+        <div class="flex flex-col items-center cursor-pointer w-28 sm:w-32 md:w-36 group">
+          <div class="relative w-28 h-28 sm:w-32 sm:h-32 md:w-36 md:h-36 flex items-center justify-center overflow-visible">
+            <img src="images/ikona1.png" class="absolute w-12 h-12 z-10 transition-all duration-300 ease-out group-hover:opacity-0 group-hover:scale-75" />
+            <div class="absolute bottom-0 translate-y-4 w-full h-full flex items-center justify-center text-center px-3 rounded-2xl bg-white/15 backdrop-blur-2xl border border-white/25 shadow-xl shadow-black/20 opacity-0 scale-95 transition-all duration-300 ease-out group-hover:opacity-100 group-hover:scale-100 group-hover:translate-y-0">
+              <span class="text-white font-medium leading-snug text-[clamp(10px,2.2vw,13px)]">
+                All activities in one place, minimizing the risk of errors, with access to ready-to-use procedure libraries.
+              </span>
+            </div>
+          </div>
+          <span class="mt-4 text-sm text-[#e4f2ff] text-center transition-opacity duration-300 group-hover:opacity-0">
+            Coordination of medical procedures
+          </span>
+        </div>
+
+       
+        <div class="flex flex-col items-center cursor-pointer w-28 sm:w-32 md:w-36 group">
+          <div class="relative w-28 h-28 sm:w-32 sm:h-32 md:w-36 md:h-36 flex items-center justify-center overflow-visible">
+            <img src="images/ikona2.png" class="absolute w-10 h-12 z-10 transition-all duration-300 ease-out group-hover:opacity-0 group-hover:scale-75" />
+            <div class="absolute bottom-0 translate-y-4 w-full h-full flex items-center justify-center text-center px-3 rounded-2xl bg-white/15 backdrop-blur-2xl border border-white/25 shadow-xl shadow-black/20 opacity-0 scale-95 transition-all duration-300 ease-out group-hover:opacity-100 group-hover:scale-100 group-hover:translate-y-0">
+              <span class="text-white font-medium leading-snug text-[clamp(10px,2.2vw,13px)]">
+                Automation of treatment schedules and reminders, streamlining the daily workflow of medical staff.
+              </span>
+            </div>
+          </div>
+          <span class="mt-4 text-sm text-[#e4f2ff] text-center transition-opacity duration-300 group-hover:opacity-0">
+            Time<br />savings
+          </span>
+        </div>
+
+       
+        <div class="flex flex-col items-center cursor-pointer w-28 sm:w-32 md:w-36 group">
+          <div class="relative w-28 h-28 sm:w-32 sm:h-32 md:w-36 md:h-36 flex items-center justify-center overflow-visible">
+            <img src="images/ikona3.png" class="absolute w-12 h-12 z-10 transition-all duration-300 ease-out group-hover:opacity-0 group-hover:scale-75" />
+            <div class="absolute bottom-0 translate-y-4 w-full h-full flex items-center justify-center text-center px-3 rounded-2xl bg-white/15 backdrop-blur-2xl border border-white/25 shadow-xl shadow-black/20 opacity-0 scale-95 transition-all duration-300 ease-out group-hover:opacity-100 group-hover:scale-100 group-hover:translate-y-0">
+              <span class="text-white font-medium leading-snug text-[clamp(10px,2.2vw,13px)]">
+                Quickly create and modify individualized patient treatment plans.
+              </span>
+            </div>
+          </div>
+          <span class="mt-4 text-sm text-[#e4f2ff] text-center transition-opacity duration-300 group-hover:opacity-0">
+            Effective<br />planning
+          </span>
+        </div>
+
+       
+        <div class="flex flex-col items-center cursor-pointer w-28 sm:w-32 md:w-36 group">
+          <div class="relative w-28 h-28 sm:w-32 sm:h-32 md:w-36 md:h-36 flex items-center justify-center overflow-visible">
+            <img src="images/ikona4.png" class="absolute w-12 h-12 z-10 transition-all duration-300 ease-out group-hover:opacity-0 group-hover:scale-75" />
+            <div class="absolute bottom-0 translate-y-4 w-full h-full flex items-center justify-center text-center px-3 rounded-2xl bg-white/15 backdrop-blur-2xl border border-white/25 shadow-xl shadow-black/20 opacity-0 scale-95 transition-all duration-300 ease-out group-hover:opacity-100 group-hover:scale-100 group-hover:translate-y-0">
+              <span class="text-white font-medium leading-snug text-[clamp(10px,2.2vw,13px)]">
+                Enables organization of medical teams and coordinated patient care across multiple specialists.
+              </span>
+            </div>
+          </div>
+          <span class="mt-4 text-sm text-[#e4f2ff] text-center transition-opacity duration-300 group-hover:opacity-0">
+            Efficient communication
+          </span>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<section class="relative w-full min-h-screen overflow-hidden bg-gradient-to-b from-[#eef8fb] via-[#dff1f6] to-[#A9D1DF]">
+  <div class="relative z-10 max-w-7xl mx-auto px-8 py-32 text-center">
+
+    <h2 class="font-semibold text-[clamp(32px,8vw,72px)] text-[#1c3c4a] relative z-10">One mission</h2>
+    <p class="mt-4 text-[clamp(16px,2.5vw,24px)] text-[#355f70] relative z-10">Better health and more time for real care</p>
+
+   
+   <div class="relative mx-auto mt-12 w-[95%] max-w-xl sm:max-w-2xl lg:max-w-3xl iphone-glow">
+  <img src="images/iphone.png" class="relative z-10 w-full">
+</div>
+
+ 
+<div class="notif-layer hidden md:block">
+  <div class="notif notif-left slot-1 d1">
+    <div class="avatar a1">A</div>
+    <div class="txt">
+      <div class="title">Appointment added</div>
+      <div class="meta">Adam Miller · 3 min ago</div>
+    </div>
+  </div>
+
+  <div class="notif notif-left slot-3 d3">
+    <div class="avatar a2">M</div>
+    <div class="txt">
+      <div class="title">New message</div>
+      <div class="meta">Marta Nowak · 1 min ago</div>
+    </div>
+  </div>
+
+  <div class="notif notif-left slot-5 d5">
+    <div class="avatar a3">K</div>
+    <div class="txt">
+      <div class="title">Reminder saved</div>
+      <div class="meta">Kuba · 6 min ago</div>
+    </div>
+  </div>
+
+  <div class="notif notif-right slot-2 d2">
+    <div class="avatar b1">S</div>
+    <div class="txt">
+      <div class="title">Scan uploaded</div>
+      <div class="meta">Anna Kowalski · 5 min ago</div>
+    </div>
+  </div>
+
+  <div class="notif notif-right slot-4 d4">
+    <div class="avatar b2">Z</div>
+    <div class="txt">
+      <div class="title">File synced</div>
+      <div class="meta">Zosia · 9 min ago</div>
+    </div>
+  </div>
+</div>
+
+
+    <div class="mt-24 flex flex-wrap justify-center gap-20">
+
+  <div class="ios-glass w-44 h-44 flex flex-col items-center justify-center
+              bg-[linear-gradient(135deg,rgba(0,203,218,.42),rgba(0,160,175,.55))]">
+    <div class="text-[38px] font-semibold text-white">5000+</div>
+    <span class="text-sm opacity-90 mt-1 text-white">Registered doctors</span>
+  </div>
+
+  <div class="ios-glass w-44 h-44 flex flex-col items-center justify-center
+              bg-[linear-gradient(135deg,rgba(0,203,218,.42),rgba(0,160,175,.55))]">
+    <div class="text-[38px] font-semibold text-white">100%</div>
+    <span class="text-sm opacity-90 mt-1 text-white">Secure data</span>
+  </div>
+
+  <div class="ios-glass w-44 h-44 flex flex-col items-center justify-center
+              bg-[linear-gradient(135deg,rgba(0,203,218,.42),rgba(0,160,175,.55))]">
+    <div class="text-[38px] font-semibold text-white">250+</div>
+    <span class="text-sm opacity-90 mt-1 text-white">Hospitals integrated</span>
+  </div>
+
+</div>
+
+    </div>
+
+  </div>
+</section>
+
+
+<footer class="relative w-full bg-gradient-to-b from-[#A9D1DF] to-[#8EC3D6] text-[#1c3c4a]">
+  <div class="max-w-7xl mx-auto px-8 py-16">
+
+  
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-y-10 items-start">
+
+    
+      <div class="flex justify-center lg:justify-start">
+        <img src="images/logobia.png" alt="PLANMED" class="h-5 w-auto opacity-95" />
+      </div>
+
+      <div class="flex justify-center">
+        <div class="text-xs tracking-[0.28em] uppercase font-semibold opacity-80">
+          WHERE TO?
+        </div>
+      </div>
+
+      <div class="hidden lg:block"></div>
+
+      <div class="text-center lg:text-left text-sm opacity-75 leading-relaxed">
+        Planning and support for modern medical workflows.
+      </div>
+
+      <nav class="flex flex-wrap justify-center gap-x-10 gap-y-4 text-sm">
+        <a href="#about" class="opacity-80 hover:opacity-100 hover:text-white transition-colors">About</a>
+        <a href="#healing" class="opacity-80 hover:opacity-100 hover:text-white transition-colors">Product</a>
+        <a href="support.html" class="opacity-80 hover:opacity-100 hover:text-white transition-colors">Support</a>
+      </nav>
+
+      <div class="text-center lg:text-right text-sm opacity-70 whitespace-nowrap">
+        © 2026 PLANMED. All rights reserved.
+      </div>
+
+    </div>
+
+    <div class="mt-12 pt-6 border-t border-white/25 flex justify-center lg:justify-start">
+      <a href="#top" class="text-sm opacity-70 hover:opacity-100 hover:text-white transition-colors">
+        Back to top
+      </a>
+    </div>
+
+  </div>
+</footer>
+</body>
+</html>

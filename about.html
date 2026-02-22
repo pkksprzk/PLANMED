@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <title>PLANMED — About</title>
+
+  <style>
+    html { scroll-behavior: smooth; }
+
+    .ios-glass {
+      background: rgba(255,255,255,0.55);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-radius: 20px;
+      padding: 14px 18px;
+      border: 1px solid rgba(255,255,255,0.6);
+      box-shadow: 0 12px 30px rgba(0,0,0,0.08),
+                  inset 0 1px 0 rgba(255,255,255,0.35);
+    }
+
+    .ios-glass-btn {
+      background: rgba(255,255,255,0.55);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(255,255,255,0.6);
+      box-shadow: 0 12px 30px rgba(0,0,0,0.08),
+                  inset 0 1px 0 rgba(255,255,255,0.35);
+      height: 40px;
+      padding: 0 24px;
+      border-radius: 9999px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      line-height: 1;
+      transition: transform .2s ease, background .2s ease;
+    }
+
+    @keyframes glassDrift {
+  0%   { transform: translate(-50%, -50%) translate(-320px, -220px) scale(1); }
+  33%  { transform: translate(-50%, -50%) translate( 340px, -160px) scale(1.06); }
+  66%  { transform: translate(-50%, -50%) translate(-180px,  260px) scale(0.98); }
+  100% { transform: translate(-50%, -50%) translate(-320px, -220px) scale(1); }
+}
+
+
+    .moving-blur {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0; /
+    }
+
+    .moving-blur::before{
+      content:"";
+      position:absolute;
+      width: 700px;
+      height: 700px;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      background: radial-gradient(
+        closest-side,
+        rgba(0,203,218,.22),
+        rgba(0,203,218,.10) 45%,
+        transparent 70%
+      );
+      filter: blur(22px);
+      opacity: .9;
+      animation: glassDrift 4.8s ease-in-out infinite;
+    }
+  </style>
+</head>
+
+<body class="relative overflow-x-hidden">
+
+
+  <div class="fixed inset-0 -z-10">
+    <img src="images/tlo.png" alt="" aria-hidden="true" class="w-full h-full object-cover">
+  </div>
+
+  <div class="moving-blur"></div>
+
+  <header class="relative z-10 px-8 py-6" id="top">
+
+    
+    <div class="absolute -top-40 -left-[550px] w-[1224px] h-[812px] bg-[#a6b4bf] rounded-full rotate-[91deg] filter blur-[250px]"></div>
+    <div class="absolute top-[145px] left-[472px] w-[512px] h-[719px] bg-[#dee7f2] rounded-[50%] filter blur-[100px]"></div>
+
+
+    <div class="flex items-center translate-y-[1px]">
+      <a href="planmed.html">
+        <img src="images/logobia.png" alt="PLANMED" class="h-4 md:h-6 w-auto opacity-100" />
+      </a>
+    </div>
+
+    <nav class="absolute top-8 left-1/2 -translate-x-1/2 flex space-x-6 md:space-x-12 text-[#224c5d] text-base md:text-lg font-medium">
+      <a href="about.html" class="hover:text-black transition">About</a>
+      <a href="planmed.html#healing" class="hover:text-black transition">Product</a>
+      <a href="support.html" class="hover:text-black transition">Support</a>
+    </nav>
+
+    <div class="absolute top-6 right-8 flex items-center">
+      <a href="login.html">
+        <button class="ios-glass-btn text-[#224c5d] text-base md:text-lg font-semibold hover:bg-white/70 hover:-translate-y-0.5">
+          Log in
+        </button>
+      </a>
+    </div>
+
+  </header>
+
+  <section class="relative z-10 w-full min-h-screen flex items-center justify-center">
+
+    <div class="max-w-5xl mx-auto px-8 text-center text-[#224c5d]">
+
+      <h1 class="font-semibold tracking-tight
+                 text-[42px] sm:text-[56px] md:text-[72px] lg:text-[84px]">
+        Step into the future
+      </h1>
+
+      <p class="mt-8 text-[16px] sm:text-[18px] md:text-[22px] lg:text-[24px]
+                leading-relaxed opacity-90">
+        An intuitive application designed to support medical professionals in the effective planning of patient treatment
+        and seamless coordination of medical procedures. Planmed helps teams stay aligned by keeping schedules, tasks,
+        documentation, and key patient information in one place.
+      </p>
+
+      <div class="mt-10 flex justify-center">
+        <a href="index.html#healing">
+          <button class="ios-glass-btn text-[#224c5d] text-base md:text-lg font-semibold hover:bg-white/70 hover:scale-105">
+            Explore Product
+          </button>
+        </a>
+      </div>
+
+    </div>
+  </section>
+
+  <footer class="relative z-10 w-full bg-transparent text-[#1c3c4a]">
+    <div class="max-w-7xl mx-auto px-8 py-16">
+
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-y-10 items-start">
+
+        <div class="flex justify-center lg:justify-start">
+          <img src="images/logobia.png" alt="PLANMED" class="h-5 w-auto opacity-95" />
+        </div>
+
+        <div class="flex justify-center">
+          <div class="text-xs tracking-[0.28em] uppercase font-semibold opacity-80">
+            WHERE TO?
+          </div>
+        </div>
+
+        <div class="hidden lg:block"></div>
+
+        <div class="text-center lg:text-left text-sm opacity-75 leading-relaxed">
+          Planning and support for modern medical workflows.
+        </div>
+
+        <nav class="flex flex-wrap justify-center gap-x-10 gap-y-4 text-sm">
+          <a href="about.html" class="opacity-80 hover:opacity-100">About</a>
+          <a href="planmed.html#healing" class="opacity-80 hover:opacity-100">Product</a>
+          <a href="support.html" class="opacity-80 hover:opacity-100">Support</a>
+        </nav>
+
+        <div class="text-center lg:text-right text-sm opacity-70 whitespace-nowrap">
+          © 2026 PLANMED. All rights reserved.
+        </div>
+
+      </div>
+
+    </div>
+  </footer>
+
+</body>
+</html>

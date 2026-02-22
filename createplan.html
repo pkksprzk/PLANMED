@@ -1,0 +1,1379 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Treatment plan</title>
+
+  <style>
+    :root{
+      --ink: #001B28;
+      --brandText: #224c5d;
+      --radius-xl: 28px;
+      --glass-tint: rgba(255,255,255,.12);
+      --glass-tint-strong: rgba(255,255,255,.16);
+      --glass-stroke: rgba(255,255,255,.30);
+      --glass-blur: 18px;
+      --glass-sat: 140%;
+      --glass-shadow: 0 10px 26px rgba(0,0,0,.10);
+      --glass-inset-top: inset 0 1px 0 rgba(255,255,255,.28);
+      --glass-inset-bottom: inset 0 -1px 0 rgba(0,0,0,.06);
+      --teal-grad: linear-gradient(135deg, rgba(0,203,218,.55), rgba(0,160,175,.70));
+      --teal-ring: 0 0 0 3px rgba(0,203,218,.16);
+    }
+    *{ box-sizing:border-box; }
+    body{
+      margin:0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Noto Sans", "Helvetica Neue";
+      color: var(--ink);
+      min-height:100vh;
+      background: url("images/dd2.png") center/cover fixed no-repeat;
+      overflow-x:hidden;
+    }
+    body:before{
+      content:"";
+      position:fixed;
+      inset:0;
+      pointer-events:none;
+      background:
+        radial-gradient(900px 700px at 18% 12%, rgba(166,180,191,.55), transparent 60%),
+        radial-gradient(520px 720px at 55% 35%, rgba(222,231,242,.70), transparent 60%);
+      opacity: .85;
+    }
+    .app{ max-width: 1280px; margin: 0 auto; padding: 26px 22px 34px; position:relative; }
+    .glass{
+      background: var(--glass-tint);
+      border: 1px solid var(--glass-stroke);
+      border-radius: var(--radius-xl);
+      backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-sat));
+      -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-sat));
+      box-shadow: var(--glass-shadow), var(--glass-inset-top), var(--glass-inset-bottom);
+    }
+
+    .top{ display:flex; gap: 12px; align-items:center; justify-content:space-between; margin-bottom: 18px; }
+    .titleBox{ padding: 14px 16px; display:flex; align-items:center; justify-content:space-between; gap: 12px; flex: 1 1 auto; min-width: 0; }
+    .titleLeft{ display:flex; flex-direction:column; gap: 6px; min-width: 0; }
+    .h1{ margin:0; font-size: 22px; font-weight: 950; color: #2d5e72; white-space: nowrap; overflow:hidden; text-overflow: ellipsis; }
+    .sub{ font-size: 15px; font-weight: 900; color: rgba(0,27,40,.70); display:flex; gap: 12px; flex-wrap: wrap; line-height: 1.25; }
+    .patientName{ font-family: inherit; font-weight: 900; }
+    .actions{ display:flex; gap:10px; align-items:center; flex: 0 0 auto; position: relative; }
+
+    .uiTitle{
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Noto Sans", "Helvetica Neue";
+      font-size: 16px;
+      font-weight: 700;
+      color: rgba(0,27,40,.86);
+    }
+
+    .select{
+      height: 44px;
+      border-radius: 999px;
+      border: 0;
+      background: var(--teal-grad);
+      box-shadow: var(--glass-shadow);
+      padding: 0 16px;
+      cursor:pointer;
+      outline:none;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Noto Sans", "Helvetica Neue";
+      font-size: 14px;
+      font-weight: 900;
+      color: rgba(255,255,255,.96);
+      appearance: none;
+      -webkit-appearance: none;
+      -moz-appearance: none;
+      backdrop-filter: blur(14px) saturate(120%);
+      -webkit-backdrop-filter: blur(14px) saturate(120%);
+      transition: transform .12s ease, box-shadow .12s ease, filter .12s ease;
+    }
+    .select:hover{ transform: translateY(-1px); box-shadow: var(--glass-shadow), var(--teal-ring); filter: brightness(1.02); }
+    .select option{ font-size: 14px; font-weight: 900; }
+
+    .iconHead{
+      width: 44px; height: 44px; border-radius: 16px; border: 0;
+      background: var(--teal-grad);
+      box-shadow: var(--glass-shadow);
+      display:grid; place-items:center;
+      cursor:pointer; position:relative;
+      transition: transform .12s ease, box-shadow .12s ease, filter .12s ease;
+    }
+    .iconHead:hover{ transform: translateY(-1px); box-shadow: var(--glass-shadow), var(--teal-ring); filter: brightness(1.02); }
+    .iconHead img{ width:22px; height:22px; object-fit:contain; }
+    .iconHead::after{
+      content: attr(data-tip);
+      position:absolute;
+      right: 0;
+      top: -10px;
+      transform: translateY(-100%);
+      background: rgba(0,27,40,.78);
+      color: rgba(255,255,255,.95);
+      font-size: 12px;
+      font-weight: 900;
+      padding: 8px 10px;
+      border-radius: 12px;
+      white-space: nowrap;
+      opacity: 0;
+      pointer-events:none;
+      transition: opacity .12s ease, transform .12s ease;
+      box-shadow: 0 10px 24px rgba(0,0,0,.18);
+    }
+    .iconHead:hover::after{ opacity: 1; transform: translateY(-110%); }
+
+    .btn{
+      border:1px solid rgba(255,255,255,.24);
+      background: rgba(255,255,255,.12);
+      color: rgba(0,27,40,.86);
+      padding: 10px 14px;
+      border-radius: 999px;
+      font-weight: 900;
+      cursor:pointer;
+      backdrop-filter: blur(14px) saturate(120%);
+      -webkit-backdrop-filter: blur(14px) saturate(120%);
+      transition: transform .12s ease, background .12s ease;
+      white-space: nowrap;
+    }
+    .btn:hover{ transform: translateY(-1px); background: rgba(255,255,255,.16); }
+    .btn.primary{
+      background: var(--teal-grad);
+      border: 0 !important;
+      box-shadow: var(--glass-shadow) !important;
+      color: rgba(255,255,255,.96);
+      font-size: 16px;
+      font-weight: 700;
+    }
+
+    .layout{ display:grid; grid-template-columns: 1fr 1fr; gap: 18px; align-items:start; }
+    .card{ padding: 16px; display:flex; flex-direction:column; gap: 12px; min-height: 520px; }
+    .cardHead{
+      display:flex; align-items:center; justify-content:space-between; gap: 10px;
+      padding-bottom: 8px; border-bottom: 1px solid rgba(255,255,255,.18);
+    }
+    .cardTitle{ font-size: 14px; font-weight: 950; color: rgba(0,27,40,.78); letter-spacing: .2px; }
+
+    .pSearch{
+      width: 100%; height: 52px; border-radius: 999px;
+      display:flex; align-items:center; gap:10px; padding: 0 16px;
+      background: rgba(255,255,255,.12);
+      border: 1px solid rgba(255,255,255,.30);
+      box-shadow: var(--glass-shadow), var(--glass-inset-top), var(--glass-inset-bottom);
+      backdrop-filter: blur(18px) saturate(140%);
+      -webkit-backdrop-filter: blur(18px) saturate(140%);
+    }
+   
+.pSearch svg{
+  width:20px;height:20px;
+  display:block;
+  flex:0 0 auto;
+  overflow: visible;
+  opacity:.75;
+  stroke: rgba(255,255,255,.85);
+}
+
+    .pSearch input{
+      width:100%; border:0; outline:none; background:transparent;
+      color: rgba(255,255,255,.95);
+      font-size: 16px; font-weight: 700; font-family: inherit;
+    }
+    .pSearch input::placeholder{ color: rgba(255,255,255,.75); }
+
+    .scroll{ overflow:auto; padding-right: 6px; flex: 1 1 auto; min-height: 0; }
+    .scroll::-webkit-scrollbar{ width: 8px; }
+    .scroll::-webkit-scrollbar-thumb{ background: rgba(0,0,0,.12); border-radius: 999px; }
+
+    .tiles{ display:grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .tile{
+      border-radius: 18px;
+      border: 1px solid rgba(255,255,255,.22);
+      background: rgba(255,255,255,.10);
+      padding: 12px;
+      cursor:pointer;
+      transition: transform .12s ease, background .12s ease, box-shadow .12s ease;
+      backdrop-filter: blur(14px) saturate(120%);
+      -webkit-backdrop-filter: blur(14px) saturate(120%);
+      display:flex; flex-direction:column; gap: 8px;
+      min-height: 96px;
+    }
+    .tile:hover{ transform: translateY(-1px); background: rgba(255,255,255,.14); box-shadow: var(--glass-shadow), var(--teal-ring); }
+    .tileName{ font-size: 14px; font-weight: 950; color: rgba(0,27,40,.82); line-height: 1.2; }
+    .tileMeta{ font-size: 12px; font-weight: 900; color: rgba(0,27,40,.62); display:flex; gap: 10px; flex-wrap: wrap; }
+
+    .pillMeta{
+      display:inline-flex; align-items:center; gap: 6px; padding: 6px 8px;
+      border-radius: 999px;
+      background: rgba(255,255,255,.10);
+      border: 1px solid rgba(255,255,255,.18);
+      white-space: nowrap;
+    }
+
+    .step{
+      border-radius: 18px;
+      border: 1px solid rgba(255,255,255,.22);
+      background: rgba(255,255,255,.10);
+      padding: 12px;
+      display:flex; gap: 10px; align-items:flex-start;
+    }
+    .step[draggable="true"]{ cursor: grab; }
+    .step[draggable="true"]:active{ cursor: grabbing; }
+    .stepMain{ flex:1 1 auto; min-width:0; }
+    .stepName{ font-size: 14px; font-weight: 950; color: rgba(0,27,40,.86); line-height: 1.2; }
+    .stepMeta{ margin-top: 6px; font-size: 12px; font-weight: 900; color: rgba(0,27,40,.62); display:flex; gap: 10px; flex-wrap: wrap; }
+    .stepActions{ display:flex; gap: 8px; flex: 0 0 auto; }
+    .mini{
+      height: 36px; padding: 0 10px; border-radius: 999px;
+      font-weight: 950;
+      border:1px solid rgba(255,255,255,.24);
+      background: rgba(255,255,255,.12);
+      cursor:pointer;
+      color: rgba(0,27,40,.82);
+      transition: transform .12s ease, background .12s ease;
+    }
+    .mini:hover{ transform: translateY(-1px); background: rgba(255,255,255,.16); }
+    .mini.danger{ background: rgba(255,90,90,.18); border-color: rgba(255,90,90,.22); }
+
+    .statusSelect{
+      border:0;
+      background:transparent;
+      outline:none;
+      cursor:pointer;
+      font-weight: 950;
+      font-family: inherit;
+      font-size: 12px;
+      color: rgba(0,27,40,.82);
+      padding: 0;
+      appearance: none;
+      -webkit-appearance: none;
+      -moz-appearance: none;
+    }
+    .pillMeta.statusChip{ gap: 8px; }
+
+    .statusDot{
+      width: 10px; height: 10px; border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.45);
+      box-shadow: 0 8px 16px rgba(0,0,0,.08);
+    }
+    .statusDot.uncompleted{ background:#eb5757; }
+    .statusDot.in_progress{ background:#f2c94c; }
+    .statusDot.completed{ background:#1fbf76; }
+
+    .totals{
+      display:flex; gap: 10px; flex-wrap: wrap; align-items:center; justify-content:flex-end;
+      padding-top: 8px; border-top: 1px solid rgba(255,255,255,.18); margin-top: 6px;
+    }
+    .empty{ padding: 18px 14px; text-align:center; color: rgba(0,27,40,.70); font-weight: 900; }
+
+    .modalOverlay{
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,.25);
+      display:none;
+      align-items:center; justify-content:center;
+      z-index: 9999;
+      padding: 20px;
+    }
+    .modalOverlay.open{ display:flex; }
+    .modal{
+      width: min(640px, 100%);
+      padding: 18px;
+      border-radius: 26px;
+      background: rgba(255,255,255,.16);
+      border: 1px solid rgba(255,255,255,.28);
+      box-shadow: var(--glass-shadow), var(--glass-inset-top), var(--glass-inset-bottom);
+      backdrop-filter: blur(18px) saturate(140%);
+      -webkit-backdrop-filter: blur(18px) saturate(140%);
+    }
+    .modalHead{ display:flex; align-items:center; justify-content:space-between; gap: 10px; margin-bottom: 12px; }
+    .modalTitle{ font-weight: 950; font-size: 16px; color: rgba(0,27,40,.86); }
+    .iconBtn{
+      width: 40px; height: 38px; border-radius: 14px;
+      border: 1px solid rgba(255,255,255,.22);
+      background: rgba(255,255,255,.10);
+      cursor:pointer;
+      display:grid; place-items:center;
+      font-weight: 950;
+      color: rgba(0,27,40,.70);
+    }
+    .formGrid{ display:grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .field{ display:flex; flex-direction:column; gap: 6px; }
+    .field label{ font-size: 12px; font-weight: 950; color: rgba(0,27,40,.70); letter-spacing: .2px; }
+    .field input, .field textarea, .field select{
+      border-radius: 16px;
+      border: 1px solid rgba(255,255,255,.26);
+      background: rgba(255,255,255,.10);
+      outline:none;
+      font-weight: 900;
+      color: rgba(0,27,40,.86);
+      padding: 10px 12px;
+      resize: vertical;
+      min-height: 44px;
+      font-family: inherit;
+    }
+    .field textarea{ min-height: 88px; font-weight: 800; }
+    .modalActions{ margin-top: 14px; display:flex; justify-content:flex-end; gap: 10px; }
+
+    body.readonly .layout{ grid-template-columns: 1fr; justify-items: center; }
+    body.readonly section[aria-label="Tiles"]{ display:none; }
+    body.readonly section[aria-label="Plan steps"]{ width: min(820px, 100%); }
+
+    body.readonly #specialtySelect{ display:none !important; }
+
+    @media (max-width: 980px){
+      .layout{ grid-template-columns: 1fr; }
+      .tiles{ grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 520px){
+      .tiles{ grid-template-columns: 1fr; }
+      .formGrid{ grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="app">
+    <div class="top">
+      <div class="titleBox glass">
+        <div class="titleLeft">
+          <h1 class="h1" id="pageTitle">Patient:</h1>
+          <div class="sub" id="patientMeta">—</div>
+        </div>
+        <div class="actions">
+          <select id="specialtySelect" class="select" aria-label="Specialty">
+            <option value="stomatologia">Dentistry</option>
+            <option value="fizjoterapia">Physiotherapy</option>
+            <option value="dermatologia">Dermatology</option>
+            <option value="ogolne">General</option>
+          </select>
+          <button class="iconHead" id="backBtn" type="button" data-tip="Back" aria-label="Back">
+            <img src="images/back.svg" alt="">
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="layout">
+      <section class="card glass" aria-label="Tiles">
+        <div class="cardHead">
+          <div class="cardTitle uiTitle" id="tilesTitle">Categories</div>
+          <div style="display:flex; gap:10px; align-items:center;">
+            <button class="btn uiTitle" id="backToCatsBtn" type="button" style="display:none;">Back</button>
+            <button class="btn primary uiTitle" id="addCustomTileBtn" type="button">Add custom</button>
+          </div>
+        </div>
+<div class="pSearch" aria-label="Search tile">
+  <svg viewBox="-2 -2 28 28" aria-hidden="true">
+    <path d="M21 21l-4.3-4.3m1.3-5.2a7 7 0 1 1-14 0 7 7 0 0 1 14 0Z"
+          fill="none" stroke-width="2" stroke-linecap="round"/>
+  </svg>
+  <input id="tileSearch" placeholder="Select category" autocomplete="off" />
+</div>
+
+
+        <div class="scroll">
+          <div class="tiles" id="tilesGrid"></div>
+          <div class="empty" id="tilesEmpty" style="display:none;">No results.</div>
+          <div class="empty" id="tilesNotReady" style="display:none;">
+            The library for this specialty is under construction — choose Dentistry.
+          </div>
+        </div>
+      </section>
+
+      <section class="card glass" aria-label="Plan steps">
+        <div class="cardHead">
+          <div class="cardTitle uiTitle">Treatment plan</div>
+          <div style="display:flex; gap:10px; align-items:center;">
+            <button class="btn primary uiTitle" id="saveBtn" type="button">Save</button>
+            <button class="iconHead" id="editBtn" type="button" aria-label="Edit" data-tip="Edit" style="display:none;">
+              <img src="images/edit.svg" alt="">
+            </button>
+            <button class="iconHead" id="exportBtn" type="button" aria-label="Export" data-tip="Export" style="display:none;">
+              <img src="images/export.svg" alt="">
+            </button>
+          </div>
+        </div>
+
+        <div class="scroll" id="stepsScroll">
+          <div id="stepsList"></div>
+          <div class="empty" id="stepsEmpty" style="display:none;">Add a step from the left panel.</div>
+        </div>
+
+        <div class="totals" id="totalsBar">
+          <span class="pillMeta"><strong>Total time:</strong> <span id="totalTime">0</span> min</span>
+          <span class="pillMeta"><strong>Total cost:</strong> <span id="totalCost">0</span> PLN</span>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <div class="modalOverlay" id="editStepOverlay" aria-hidden="true">
+    <div class="modal" role="dialog" aria-modal="true" aria-label="Edit step">
+      <div class="modalHead">
+        <div class="modalTitle" id="editStepTitle">Edit</div>
+        <button class="iconBtn" id="editStepClose" aria-label="Close">✕</button>
+      </div>
+      <div class="formGrid">
+        <div class="field">
+          <label for="esName">Name</label>
+          <input id="esName" />
+        </div>
+        <div class="field">
+          <label for="esCategory">Category</label>
+          <input id="esCategory" />
+        </div>
+        <div class="field">
+          <label for="esDuration">Time (min)</label>
+          <input id="esDuration" inputmode="numeric" />
+        </div>
+        <div class="field">
+          <label for="esCost">Cost (PLN)</label>
+          <input id="esCost" inputmode="numeric" />
+        </div>
+
+        <div class="field" style="grid-column:1/-1;">
+          <label for="esNotes">Notes</label>
+          <textarea id="esNotes" placeholder="optional"></textarea>
+        </div>
+      </div>
+      <div class="modalActions">
+        <button class="btn" id="editStepCancel" type="button">Cancel</button>
+        <button class="btn primary" id="editStepSave" type="button">Save</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modalOverlay" id="customTileOverlay" aria-hidden="true">
+    <div class="modal" role="dialog" aria-modal="true" aria-label="Add custom tile">
+      <div class="modalHead">
+        <div class="modalTitle">Add custom tile</div>
+        <button class="iconBtn" id="customTileClose" aria-label="Close">✕</button>
+      </div>
+      <div class="formGrid">
+        <div class="field">
+          <label for="ctName">Name *</label>
+          <input id="ctName" placeholder="e.g. Temporary filling" />
+        </div>
+        <div class="field">
+          <label for="ctCategory">Category</label>
+          <input id="ctCategory" placeholder="e.g. Procedures" />
+        </div>
+        <div class="field">
+          <label for="ctDuration">Default time (min)</label>
+          <input id="ctDuration" inputmode="numeric" placeholder="e.g. 20" />
+        </div>
+        <div class="field">
+          <label for="ctCost">Default cost (PLN)</label>
+          <input id="ctCost" inputmode="numeric" placeholder="e.g. 150" />
+        </div>
+        <div class="field" style="grid-column:1/-1;">
+          <label for="ctNotes">Default notes</label>
+          <textarea id="ctNotes" placeholder="optional"></textarea>
+        </div>
+      </div>
+      <div class="modalActions">
+        <button class="btn" id="customTileCancel" type="button">Cancel</button>
+        <button class="btn primary" id="customTileSave" type="button">Add</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const PATIENTS_KEY = "patientsData_v5";
+    const PLANS_KEY = "treatmentPlansData_v1";
+    const PRIVATE_TILES_KEY = "privateTiles_v1";
+
+    const STEP_STATUSES = {
+      uncompleted: { label: "Uncompleted", dot: "uncompleted" },
+      in_progress: { label: "In progress", dot: "in_progress" },
+      completed:   { label: "Completed",   dot: "completed" }
+    };
+
+    function normalizeStepStatus(v){
+      const raw = String(v || "").trim().toLowerCase();
+
+      
+      if (raw === "done") return "completed";
+      if (raw === "not_done") return "uncompleted";
+
+     
+      if (raw === "in progress") return "in_progress";
+      if (raw === "not done") return "uncompleted";
+
+      
+      if (raw === "completed") return "completed";
+      if (raw === "in_progress") return "in_progress";
+      if (raw === "uncompleted") return "uncompleted";
+
+      return "uncompleted";
+    }
+
+    function normalizePL(s){
+      return String(s || "")
+        .toLowerCase()
+        .normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+    }
+    function digitsOnly(s){ return String(s || "").replace(/\D/g, ""); }
+    function pad2(n){ return String(n).padStart(2,"0"); }
+    function formatBirthDate(dob){
+      if (!dob || !dob.y || !dob.m || !dob.d) return "—";
+      return `${pad2(dob.d)}.${pad2(dob.m)}.${dob.y}`;
+    }
+    function patientKey(p){
+      return (p?.pesel && String(p.pesel).trim())
+        ? `pesel:${p.pesel}`
+        : `id:${p.id}`;
+    }
+    function nowISO(){ return new Date().toISOString(); }
+    function money(n){
+      const v = Number(n);
+      if (Number.isNaN(v)) return 0;
+      return Math.max(0, Math.round(v));
+    }
+    function minutes(n){
+      const v = Number(n);
+      if (Number.isNaN(v)) return 0;
+      return Math.max(0, Math.round(v));
+    }
+    function makeId(prefix){
+      return prefix + "_" + Math.random().toString(16).slice(2) + "_" + Date.now().toString(16);
+    }
+    function loadJSON(key, fallback){
+      try{
+        const raw = localStorage.getItem(key);
+        const val = JSON.parse(raw || "");
+        return (val === null || val === undefined) ? fallback : val;
+      }catch{
+        return fallback;
+      }
+    }
+    function saveJSON(key, val){ localStorage.setItem(key, JSON.stringify(val)); }
+
+    function loadPlans(){
+      const v = loadJSON(PLANS_KEY, []);
+      return Array.isArray(v) ? v : [];
+    }
+    function savePlans(plans){ saveJSON(PLANS_KEY, plans); }
+
+    function loadPatients(){
+      const v = loadJSON(PATIENTS_KEY, []);
+      return Array.isArray(v) ? v : [];
+    }
+
+    function loadPrivateTiles(){
+      const arr = loadJSON(PRIVATE_TILES_KEY, []);
+      return Array.isArray(arr) ? arr : [];
+    }
+    function savePrivateTiles(arr){ saveJSON(PRIVATE_TILES_KEY, arr); }
+
+    const SEED_TILES = [
+      { id:"tpl_consult", specialty:"stomatologia", category:"Diagnostyka", name:"Konsultacja stomatologiczna", defaults:{durationMin:20,costPLN:150,notes:""} },
+      { id:"tpl_xray", specialty:"stomatologia", category:"Diagnostyka", name:"RTG punktowe", defaults:{durationMin:10,costPLN:80,notes:""} },
+      { id:"tpl_panto", specialty:"stomatologia", category:"Diagnostyka", name:"Pantomogram", defaults:{durationMin:15,costPLN:120,notes:""} },
+      { id:"tpl_scaling", specialty:"stomatologia", category:"Higiena", name:"Skaling", defaults:{durationMin:30,costPLN:250,notes:""} },
+      { id:"tpl_sand", specialty:"stomatologia", category:"Higiena", name:"Piaskowanie", defaults:{durationMin:25,costPLN:220,notes:""} },
+      { id:"tpl_fluor", specialty:"stomatologia", category:"Higiena", name:"Fluoryzacja", defaults:{durationMin:15,costPLN:100,notes:""} },
+      { id:"tpl_fill_composite", specialty:"stomatologia", category:"Zachowawcza", name:"Wypełnienie kompozytowe", defaults:{durationMin:30,costPLN:280,notes:""} },
+      { id:"tpl_fill_temp", specialty:"stomatologia", category:"Zachowawcza", name:"Wypełnienie tymczasowe", defaults:{durationMin:20,costPLN:160,notes:""} },
+      { id:"tpl_endo_1", specialty:"stomatologia", category:"Endodoncja", name:"Leczenie kanałowe – wizyta 1", defaults:{durationMin:70,costPLN:650,notes:"Opracowanie kanałów"} },
+      { id:"tpl_endo_2", specialty:"stomatologia", category:"Endodoncja", name:"Leczenie kanałowe – wizyta 2", defaults:{durationMin:60,costPLN:550,notes:"Wypełnienie kanałów"} },
+      { id:"tpl_extract_simple", specialty:"stomatologia", category:"Chirurgia", name:"Ekstrakcja prosta", defaults:{durationMin:30,costPLN:350,notes:""} },
+      { id:"tpl_extract_surg", specialty:"stomatologia", category:"Chirurgia", name:"Ekstrakcja chirurgiczna", defaults:{durationMin:60,costPLN:700,notes:""} },
+      { id:"tpl_followup", specialty:"stomatologia", category:"Kontrola", name:"Wizyta kontrolna", defaults:{durationMin:15,costPLN:0,notes:"Kontrola gojenia / ocena"} },
+    ];
+
+    const params = new URLSearchParams(window.location.search);
+    const planId = params.get("planId") || "";
+    const pesel = params.get("pesel") || "";
+    const pid = params.get("id") || "";
+
+    let plans = loadPlans();
+    let plan = plans.find(p => p.id === planId);
+
+    if (!plan && (pesel || pid)){
+      const key = pesel ? `pesel:${pesel}` : `id:${pid}`;
+      plan = plans.find(p => p.patientKey === key);
+    }
+
+    let createdNewPlan = false;
+
+    if (!plan){
+      createdNewPlan = true;
+
+      const patients = loadPatients();
+      const p = patients.find(x => (pesel && x.pesel === pesel) || (pid && x.id === pid)) || null;
+
+      plan = {
+        id: planId || makeId("plan"),
+        patientKey: p ? patientKey(p) : (pesel ? `pesel:${pesel}` : (pid ? `id:${pid}` : "unknown")),
+        patient: p ? { ...p } : { first:"", last:"", pesel: pesel || "", id: pid || "", dob:null },
+        lastModified: nowISO(),
+        specialty: "stomatologia",
+        steps: [],
+        isSaved: false
+      };
+
+      plans.unshift(plan);
+      savePlans(plans);
+    }
+
+    if (!plan.specialty) plan.specialty = "stomatologia";
+    if (!Array.isArray(plan.steps)) plan.steps = [];
+
+    if (typeof plan.isSaved !== "boolean"){
+      plan.isSaved = !createdNewPlan;
+    }
+
+    plan.steps = plan.steps.map(s => ({ ...s, status: normalizeStepStatus(s.status) }));
+    (function persistAfterMigration(){
+      plans = loadPlans();
+      const idx = plans.findIndex(p => p.id === plan.id);
+      plan.lastModified = nowISO();
+      if (idx >= 0) plans[idx] = plan;
+      else plans.unshift(plan);
+      savePlans(plans);
+    })();
+
+    const pageTitle = document.getElementById("pageTitle");
+    const patientMeta = document.getElementById("patientMeta");
+    const specialtySelect = document.getElementById("specialtySelect");
+    const backBtn = document.getElementById("backBtn");
+
+    const tilesTitle = document.getElementById("tilesTitle");
+    const backToCatsBtn = document.getElementById("backToCatsBtn");
+    const tileSearch = document.getElementById("tileSearch");
+    const tilesGrid = document.getElementById("tilesGrid");
+    const tilesEmpty = document.getElementById("tilesEmpty");
+    const tilesNotReady = document.getElementById("tilesNotReady");
+
+    const stepsList = document.getElementById("stepsList");
+    const stepsEmpty = document.getElementById("stepsEmpty");
+    const totalTime = document.getElementById("totalTime");
+    const totalCost = document.getElementById("totalCost");
+
+    const saveBtn = document.getElementById("saveBtn");
+    const editBtn = document.getElementById("editBtn");
+    const exportBtn = document.getElementById("exportBtn");
+
+    const editStepOverlay = document.getElementById("editStepOverlay");
+    const editStepClose = document.getElementById("editStepClose");
+    const editStepCancel = document.getElementById("editStepCancel");
+    const editStepSave = document.getElementById("editStepSave");
+    const esName = document.getElementById("esName");
+    const esCategory = document.getElementById("esCategory");
+    const esDuration = document.getElementById("esDuration");
+    const esCost = document.getElementById("esCost");
+    const esNotes = document.getElementById("esNotes");
+    const editStepTitle = document.getElementById("editStepTitle");
+
+    const addCustomTileBtn = document.getElementById("addCustomTileBtn");
+    const customTileOverlay = document.getElementById("customTileOverlay");
+    const customTileClose = document.getElementById("customTileClose");
+    const customTileCancel = document.getElementById("customTileCancel");
+    const customTileSave = document.getElementById("customTileSave");
+    const ctName = document.getElementById("ctName");
+    const ctCategory = document.getElementById("ctCategory");
+    const ctDuration = document.getElementById("ctDuration");
+    const ctCost = document.getElementById("ctCost");
+    const ctNotes = document.getElementById("ctNotes");
+
+    let tilesView = "categories";
+    let currentCategory = "";
+    let isReadOnly = false;
+
+    function openOverlay(overlay){
+      overlay.classList.add("open");
+      overlay.setAttribute("aria-hidden","false");
+    }
+    function closeOverlay(overlay){
+      overlay.classList.remove("open");
+      overlay.setAttribute("aria-hidden","true");
+    }
+
+    function persistPlan(){
+      plans = loadPlans();
+      const idx = plans.findIndex(p => p.id === plan.id);
+      plan.lastModified = nowISO();
+      if (idx >= 0) plans[idx] = plan;
+      else plans.unshift(plan);
+      savePlans(plans);
+    }
+
+    function getTilesForSpecialty(spec){
+      const priv = loadPrivateTiles();
+      const all = [...SEED_TILES, ...priv];
+      return all.filter(t => t.specialty === spec);
+    }
+    function getCategoriesForSpecialty(spec){
+      const tiles = getTilesForSpecialty(spec);
+      const set = new Set(tiles.map(t => (t.category || "Other").trim() || "Other"));
+      return Array.from(set).sort((a,b) => a.localeCompare(b, "en"));
+    }
+    function tileMatches(t, q){
+      if (!q) return true;
+      const qq = normalizePL(q.trim());
+      return (
+        normalizePL(t.name).includes(qq) ||
+        normalizePL(t.category).includes(qq)
+      );
+    }
+
+    function setMode(readonly){
+      isReadOnly = !!readonly;
+      document.body.classList.toggle("readonly", isReadOnly);
+
+      saveBtn.style.display = isReadOnly ? "none" : "";
+      editBtn.style.display = isReadOnly ? "" : "none";
+      exportBtn.style.display = isReadOnly ? "" : "none";
+
+      renderSteps();
+      renderTiles();
+    }
+
+    function renderHeader(){
+      const p = plan.patient || {};
+      const full = `${p.first || ""} ${p.last || ""}`.trim() || "Patient";
+      pageTitle.textContent = "Patient:";
+      patientMeta.innerHTML = `
+        <span class="patientName">${full}</span>
+        <span>Birth: ${formatBirthDate(p.dob)}</span>
+        <span>PESEL: ${p.pesel ? p.pesel : "—"}</span>
+      `;
+      specialtySelect.value = plan.specialty || "stomatologia";
+    }
+
+    function renderTiles(){
+      const spec = specialtySelect.value;
+      const q = tileSearch.value || "";
+      const ready = (spec === "stomatologia");
+
+      tilesGrid.innerHTML = "";
+      tilesEmpty.style.display = "none";
+      tilesNotReady.style.display = ready ? "none" : "";
+
+      if (!ready) return;
+
+      if (tilesView === "categories"){
+        tilesTitle.textContent = "Categories";
+        backToCatsBtn.style.display = "none";
+        tileSearch.value = "";
+        tileSearch.disabled = true;
+        tileSearch.placeholder = "Select category";
+
+        const cats = getCategoriesForSpecialty(spec);
+        tilesEmpty.style.display = cats.length ? "none" : "";
+
+        cats.forEach(cat => {
+          const el = document.createElement("div");
+          el.className = "tile";
+          el.setAttribute("data-cat", cat);
+          el.innerHTML = `<div class="tileName">${cat}</div>`;
+          tilesGrid.appendChild(el);
+        });
+        return;
+      }
+
+      tilesTitle.textContent = currentCategory || "Procedures";
+      backToCatsBtn.style.display = "";
+      tileSearch.disabled = false;
+      tileSearch.placeholder = "Search procedures";
+
+      const tiles = getTilesForSpecialty(spec)
+        .filter(t => (t.category || "Other") === currentCategory)
+        .filter(t => tileMatches(t, q));
+
+      tilesEmpty.style.display = tiles.length ? "none" : "";
+
+      tiles.forEach(t => {
+        const el = document.createElement("div");
+        el.className = "tile";
+        el.setAttribute("data-tile-id", t.id);
+        el.innerHTML = `
+          <div class="tileName">${t.name}</div>
+          <div class="tileMeta">
+            <span class="pillMeta">${t.category || "—"}</span>
+            <span class="pillMeta">${minutes(t.defaults?.durationMin)} min</span>
+            <span class="pillMeta">${money(t.defaults?.costPLN)} PLN</span>
+          </div>
+        `;
+        tilesGrid.appendChild(el);
+      });
+    }
+
+    function computeTotals(){
+      const time = plan.steps.reduce((a,s) => a + minutes(s.durationMin), 0);
+      const cost = plan.steps.reduce((a,s) => a + money(s.costPLN), 0);
+      totalTime.textContent = String(time);
+      totalCost.textContent = String(cost);
+    }
+
+    function statusChipHTML(step){
+      if (!isReadOnly || !plan.isSaved) return "";
+
+      const st = normalizeStepStatus(step.status);
+      const meta = STEP_STATUSES[st];
+
+      return `
+        <span class="pillMeta statusChip" title="Status">
+          <span class="statusDot ${meta.dot}"></span>
+          <select class="statusSelect" data-role="status" aria-label="Status">
+            <option value="uncompleted" ${st==="uncompleted"?"selected":""}>Uncompleted</option>
+            <option value="in_progress" ${st==="in_progress"?"selected":""}>In progress</option>
+            <option value="completed" ${st==="completed"?"selected":""}>Completed</option>
+          </select>
+        </span>
+      `;
+    }
+
+    function renderSteps(){
+      stepsList.innerHTML = "";
+      stepsEmpty.style.display = plan.steps.length ? "none" : "";
+
+      plan.steps.forEach((s) => {
+        const el = document.createElement("div");
+        el.className = "step";
+        el.setAttribute("data-step-id", s.id);
+        el.draggable = !isReadOnly;
+        el.setAttribute("aria-grabbed", (!isReadOnly).toString());
+
+        const actionsHTML = (!isReadOnly)
+          ? `<div class="stepActions">
+               <button class="mini" type="button" data-action="edit">Edit</button>
+               <button class="mini danger" type="button" data-action="del">Delete</button>
+             </div>`
+          : ``;
+
+        el.innerHTML = `
+          <div class="stepMain">
+            <div class="stepName">${s.name || "—"}</div>
+            <div class="stepMeta">
+              <span class="pillMeta">${s.category || "—"}</span>
+              <span class="pillMeta">${minutes(s.durationMin)} min</span>
+              <span class="pillMeta">${money(s.costPLN)} PLN</span>
+              ${statusChipHTML(s)}
+              ${s.notes ? `<span class="pillMeta">Notes</span>` : ``}
+            </div>
+          </div>
+          ${actionsHTML}
+        `;
+        stepsList.appendChild(el);
+      });
+
+      computeTotals();
+    }
+
+    function renderAll(){
+      renderHeader();
+      renderTiles();
+      renderSteps();
+    }
+
+    function findTileById(id){
+      const spec = specialtySelect.value;
+      const all = [...SEED_TILES, ...loadPrivateTiles()].filter(t => t.specialty === spec);
+      return all.find(t => t.id === id) || null;
+    }
+
+    function addStepFromTile(tile){
+      const step = {
+        id: makeId("step"),
+        templateId: tile.id,
+        name: tile.name,
+        category: tile.category || "",
+        durationMin: minutes(tile.defaults?.durationMin),
+        costPLN: money(tile.defaults?.costPLN),
+        notes: tile.defaults?.notes || "",
+        status: "uncompleted"
+      };
+      plan.steps.push(step);
+      persistPlan();
+      renderSteps();
+    }
+
+    tilesGrid.addEventListener("click", (e) => {
+      const tileEl = e.target.closest(".tile");
+      if (!tileEl) return;
+
+      const cat = tileEl.getAttribute("data-cat");
+      if (cat){
+        tilesView = "tiles";
+        currentCategory = cat;
+        renderTiles();
+        return;
+      }
+
+      const id = tileEl.getAttribute("data-tile-id");
+      if (!id) return;
+
+      const t = findTileById(id);
+      if (!t) return;
+
+      addStepFromTile(t);
+    });
+
+    backToCatsBtn.addEventListener("click", () => {
+      tilesView = "categories";
+      currentCategory = "";
+      renderTiles();
+    });
+
+    stepsList.addEventListener("change", (e) => {
+      const sel = e.target.closest('select[data-role="status"]');
+      if (!sel) return;
+
+      if (!isReadOnly || !plan.isSaved) return;
+
+      const wrap = e.target.closest(".step");
+      const stepId = wrap?.getAttribute("data-step-id");
+      const step = plan.steps.find(s => s.id === stepId);
+      if (!step) return;
+
+      step.status = normalizeStepStatus(sel.value);
+      persistPlan();
+      renderSteps();
+    });
+
+    let editingStepId = null;
+
+    function openEditStep(step){
+      if (isReadOnly) return;
+      editingStepId = step.id;
+      editStepTitle.textContent = "Edit step";
+      esName.value = step.name || "";
+      esCategory.value = step.category || "";
+      esDuration.value = String(minutes(step.durationMin));
+      esCost.value = String(money(step.costPLN));
+      esNotes.value = step.notes || "";
+      openOverlay(editStepOverlay);
+      setTimeout(() => esName.focus(), 0);
+    }
+    function closeEditStep(){
+      editingStepId = null;
+      closeOverlay(editStepOverlay);
+    }
+
+    editStepClose.addEventListener("click", closeEditStep);
+    editStepCancel.addEventListener("click", closeEditStep);
+    editStepOverlay.addEventListener("click", (e) => {
+      if (e.target === editStepOverlay) closeEditStep();
+    });
+
+    editStepSave.addEventListener("click", () => {
+      if (!editingStepId) return;
+      const step = plan.steps.find(s => s.id === editingStepId);
+      if (!step) return;
+
+      step.name = (esName.value || "").trim();
+      step.category = (esCategory.value || "").trim();
+      step.durationMin = minutes(digitsOnly(esDuration.value));
+      step.costPLN = money(digitsOnly(esCost.value));
+      step.notes = (esNotes.value || "").trim();
+
+      persistPlan();
+      closeEditStep();
+      renderSteps();
+    });
+
+    stepsList.addEventListener("click", (e) => {
+      const wrap = e.target.closest(".step");
+      if (!wrap) return;
+
+      const stepId = wrap.getAttribute("data-step-id");
+      const step = plan.steps.find(s => s.id === stepId);
+      if (!step) return;
+
+      const btn = e.target.closest("button[data-action]");
+      if (!btn) return;
+
+      const action = btn.getAttribute("data-action");
+      if (action === "edit"){
+        openEditStep(step);
+      } else if (action === "del"){
+        if (isReadOnly) return;
+        plan.steps = plan.steps.filter(s => s.id !== stepId);
+        persistPlan();
+        renderSteps();
+      }
+    });
+
+    let dragFromId = null;
+
+    stepsList.addEventListener("dragstart", (e) => {
+      if (isReadOnly) return;
+      const stepEl = e.target.closest(".step");
+      if (!stepEl) return;
+
+      dragFromId = stepEl.getAttribute("data-step-id");
+      e.dataTransfer.effectAllowed = "move";
+    });
+
+    stepsList.addEventListener("dragover", (e) => {
+      if (isReadOnly) return;
+      const overEl = e.target.closest(".step");
+      if (!overEl) return;
+      e.preventDefault();
+      e.dataTransfer.dropEffect = "move";
+    });
+
+    stepsList.addEventListener("drop", (e) => {
+      if (isReadOnly) return;
+      const toEl = e.target.closest(".step");
+      if (!toEl) return;
+      e.preventDefault();
+
+      const toId = toEl.getAttribute("data-step-id");
+      if (!dragFromId || !toId || dragFromId === toId) return;
+
+      const fromIndex = plan.steps.findIndex(s => s.id === dragFromId);
+      const toIndex = plan.steps.findIndex(s => s.id === toId);
+      if (fromIndex < 0 || toIndex < 0) return;
+
+      const [moved] = plan.steps.splice(fromIndex, 1);
+      plan.steps.splice(toIndex, 0, moved);
+
+      persistPlan();
+      renderSteps();
+    });
+
+    function resetCustomTileForm(){
+      ctName.value = "";
+      ctCategory.value = "";
+      ctDuration.value = "";
+      ctCost.value = "";
+      ctNotes.value = "";
+    }
+
+    addCustomTileBtn.addEventListener("click", () => {
+      if (isReadOnly) return;
+      resetCustomTileForm();
+      openOverlay(customTileOverlay);
+      setTimeout(() => ctName.focus(), 0);
+    });
+
+    function closeCustomTile(){ closeOverlay(customTileOverlay); }
+
+    customTileClose.addEventListener("click", closeCustomTile);
+    customTileCancel.addEventListener("click", closeCustomTile);
+    customTileOverlay.addEventListener("click", (e) => {
+      if (e.target === customTileOverlay) closeCustomTile();
+    });
+
+    customTileSave.addEventListener("click", () => {
+      const spec = specialtySelect.value;
+      if (spec !== "stomatologia"){
+        alert("Custom tiles are available in the demo for Dentistry.");
+        return;
+      }
+
+      const name = (ctName.value || "").trim();
+      if (!name){
+        alert("Please enter a name.");
+        return;
+      }
+
+      const tile = {
+        id: makeId("tpl"),
+        specialty: spec,
+        category: (ctCategory.value || "").trim() || "My",
+        name,
+        defaults: {
+          durationMin: minutes(digitsOnly(ctDuration.value)),
+          costPLN: money(digitsOnly(ctCost.value)),
+          notes: (ctNotes.value || "").trim()
+        },
+        scope: "private"
+      };
+
+      const priv = loadPrivateTiles();
+      priv.unshift(tile);
+      savePrivateTiles(priv);
+
+      closeCustomTile();
+
+      tilesView = "categories";
+      currentCategory = "";
+      renderTiles();
+    });
+
+    specialtySelect.addEventListener("change", () => {
+      if (isReadOnly) return;
+      plan.specialty = specialtySelect.value;
+      tileSearch.value = "";
+      tilesView = "categories";
+      currentCategory = "";
+      persistPlan();
+      renderTiles();
+    });
+
+    let tileT = null;
+    tileSearch.addEventListener("input", () => {
+      if (tilesView !== "tiles") return;
+      clearTimeout(tileT);
+      tileT = setTimeout(renderTiles, 80);
+    });
+
+    saveBtn.addEventListener("click", () => {
+      plan.isSaved = true;
+      persistPlan();
+      setMode(true);
+    });
+
+    editBtn.addEventListener("click", () => {
+      setMode(false);
+    });
+
+    function exportPlanToPDF(){
+      const p = plan.patient || {};
+      const full = `${p.first || ""} ${p.last || ""}`.trim() || "Patient";
+
+      const rows = plan.steps.map((s, i) => {
+        const st = normalizeStepStatus(s.status);
+        return `
+          <tr>
+            <td style="padding:8px 10px; border-bottom:1px solid #ddd;">${i+1}</td>
+            <td style="padding:8px 10px; border-bottom:1px solid #ddd;">${(s.name || "—")}</td>
+            <td style="padding:8px 10px; border-bottom:1px solid #ddd;">${(s.category || "—")}</td>
+            <td style="padding:8px 10px; border-bottom:1px solid #ddd;">${STEP_STATUSES[st].label}</td>
+            <td style="padding:8px 10px; border-bottom:1px solid #ddd; text-align:right;">${minutes(s.durationMin)} min</td>
+            <td style="padding:8px 10px; border-bottom:1px solid #ddd; text-align:right;">${money(s.costPLN)} PLN</td>
+          </tr>
+        `;
+      }).join("");
+
+      const html = `<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Treatment plan</title>
+</head>
+<body style="font-family: Arial, sans-serif; color:#111; padding:24px;">
+  <h2 style="margin:0 0 6px;">Treatment plan</h2>
+  <div style="margin:0 0 16px; color:#444;">
+    <div><strong>Patient:</strong> ${full}</div>
+    <div><strong>Birth:</strong> ${formatBirthDate(p.dob)}</div>
+    <div><strong>PESEL:</strong> ${p.pesel || "—"}</div>
+  </div>
+
+  <table style="width:100%; border-collapse:collapse; font-size:14px;">
+    <thead>
+      <tr>
+        <th style="text-align:left; padding:8px 10px; border-bottom:2px solid #111;">#</th>
+        <th style="text-align:left; padding:8px 10px; border-bottom:2px solid #111;">Step</th>
+        <th style="text-align:left; padding:8px 10px; border-bottom:2px solid #111;">Category</th>
+        <th style="text-align:left; padding:8px 10px; border-bottom:2px solid #111;">Status</th>
+        <th style="text-align:right; padding:8px 10px; border-bottom:2px solid #111;">Time</th>
+        <th style="text-align:right; padding:8px 10px; border-bottom:2px solid #111;">Cost</th>
+      </tr>
+    </thead>
+    <tbody>
+      ${rows || `<tr><td colspan="6" style="padding:12px 10px;">No steps.</td></tr>`}
+    </tbody>
+  </table>
+
+  <div style="margin-top:14px; text-align:right; font-size:14px;">
+    <div><strong>Total time:</strong> ${totalTime.textContent} min</div>
+    <div><strong>Total cost:</strong> ${totalCost.textContent} PLN</div>
+  </div>
+
+  <script>
+    window.onload = () => window.print();
+  <\/script>
+</body>
+</html>`;
+
+      const w = window.open("", "_blank");
+      w.document.open();
+      w.document.write(html);
+      w.document.close();
+    }
+
+    exportBtn.addEventListener("click", exportPlanToPDF);
+
+    backBtn.addEventListener("click", () => {
+      window.location.href = "treatmentplan.html";
+    });
+
+    document.addEventListener("keydown", (e) => {
+      if (e.key !== "Escape") return;
+      [editStepOverlay, customTileOverlay].forEach(ov => {
+        if (ov.classList.contains("open")) closeOverlay(ov);
+      });
+    });
+
+    renderAll();
+    setMode(!!plan.isSaved);
+
+    const NOTIF_KEY = "notificationsData_v1";
+    const NOTIF_CHANNEL = "notifications_sync_v1";
+    const notiBC = ("BroadcastChannel" in window) ? new BroadcastChannel(NOTIF_CHANNEL) : null;
+
+    function ensureSidebarUnreadBadge(){
+      let badge = document.getElementById("sidebarUnreadBadge");
+      if (badge) return badge;
+
+      const notifLink =
+        document.querySelector('.sidenav a[href="notifications.html"]') ||
+        document.querySelector('.sidenav a[data-tip="Notifications"]');
+
+      if (!notifLink) return null;
+
+      badge = document.createElement("span");
+      badge.className = "sideBadge";
+      badge.id = "sidebarUnreadBadge";
+      badge.setAttribute("aria-hidden","true");
+      badge.textContent = "0";
+      notifLink.appendChild(badge);
+      return badge;
+    }
+
+    function loadNotificationsSafe(){
+      try{
+        const raw = localStorage.getItem(NOTIF_KEY);
+        const arr = raw ? JSON.parse(raw) : [];
+        return Array.isArray(arr) ? arr : [];
+      }catch{
+        return [];
+      }
+    }
+
+    function countUnread(list){
+      return list.reduce((acc,n) => acc + (!n?.deletedAt && !n?.readAt ? 1 : 0), 0);
+    }
+
+    let prevUnread = 0;
+
+    function updateUnreadBadge(){
+      const badge = document.getElementById("sidebarUnreadBadge") || ensureSidebarUnreadBadge();
+      if (!badge) return;
+
+      const list = loadNotificationsSafe();
+      const unread = countUnread(list);
+
+      if (unread > 0){
+        badge.style.display = "block";
+        badge.textContent = String(unread);
+        badge.classList.add("pulse");
+
+        if (unread > prevUnread){
+          badge.classList.remove("pop");
+          void badge.offsetWidth;
+          badge.classList.add("pop");
+        }
+      } else {
+        badge.style.display = "none";
+        badge.classList.remove("pulse");
+      }
+      prevUnread = unread;
+    }
+
+    updateUnreadBadge();
+
+    window.addEventListener("storage", (e) => {
+      if (e.key === NOTIF_KEY) updateUnreadBadge();
+    });
+
+    if (notiBC){
+      notiBC.addEventListener("message", (ev) => {
+        if (ev?.data?.type === "changed") updateUnreadBadge();
+      });
+    }
+
+    const currentDoctorName =
+      localStorage.getItem("currentDoctorName") ||
+      localStorage.getItem("currentUserName") ||
+      localStorage.getItem("loggedUserName") ||
+      localStorage.getItem("doctorName") ||
+      "Dr Anna Nowak";
+
+    const TASKS_KEY = "tasksData_v1";
+    const TASKS_PING_KEY = "tasksPing_v1";
+    const TASKS_CHANNEL = "tasks_sync_v1";
+
+    const tasksBC = ("BroadcastChannel" in window)
+      ? new BroadcastChannel(TASKS_CHANNEL)
+      : null;
+
+    function fromISODate(s){
+      const [y,m,d] = String(s).split("-").map(Number);
+      return new Date(y, (m||1)-1, d||1);
+    }
+    function startOfDay(d){
+      const x = new Date(d);
+      x.setHours(0,0,0,0);
+      return x;
+    }
+    function daysDiff(fromDate, toDate){
+      const a = startOfDay(fromDate).getTime();
+      const b = startOfDay(toDate).getTime();
+      return Math.round((b - a) / (24*60*60*1000));
+    }
+    function safeJSONParse(raw, fallback){
+      try{
+        const v = raw ? JSON.parse(raw) : null;
+        return (v === null || v === undefined) ? fallback : v;
+      }catch{
+        return fallback;
+      }
+    }
+    function loadTasksSafe(){
+      const arr = safeJSONParse(localStorage.getItem(TASKS_KEY), []);
+      return Array.isArray(arr) ? arr : [];
+    }
+
+    function ensureSidebarTasksBadge(){
+      let badge = document.getElementById("sidebarTasksBadge");
+      if (badge) return badge;
+
+      const tasksLink =
+        document.querySelector('.sidenav a[href="task.html"]') ||
+        document.querySelector('.sidenav a[data-tip="Tasks"]');
+
+      if (!tasksLink) return null;
+
+      badge = document.createElement("span");
+      badge.className = "sideBadge";
+      badge.id = "sidebarTasksBadge";
+      badge.setAttribute("aria-hidden","true");
+      badge.textContent = "0";
+      tasksLink.appendChild(badge);
+      return badge;
+    }
+
+    function updateTasksBadgeGlobal(){
+      const badge = document.getElementById("sidebarTasksBadge") || ensureSidebarTasksBadge();
+      if (!badge) return;
+
+      const tasks = loadTasksSafe();
+      const now = new Date();
+
+      const mineOpen = tasks.filter(t =>
+        t && t.status !== "done" && t.assignedTo === currentDoctorName
+      );
+
+      const count = mineOpen.reduce((acc, t) => {
+        const diff = daysDiff(now, fromISODate(t.dueDate));
+        if (diff < 0) return acc + 1;
+        if (diff <= 2) return acc + 1;
+        return acc;
+      }, 0);
+
+      if (count > 0){
+        badge.style.display = "block";
+        badge.textContent = String(count);
+        badge.classList.add("pulse");
+      } else {
+        badge.style.display = "none";
+        badge.classList.remove("pulse");
+      }
+    }
+
+    updateTasksBadgeGlobal();
+
+    window.addEventListener("storage", (e) => {
+      if (e.key === TASKS_KEY || e.key === TASKS_PING_KEY){
+        updateTasksBadgeGlobal();
+      }
+    });
+
+    if (tasksBC){
+      tasksBC.addEventListener("message", (ev) => {
+        if (ev?.data?.type === "changed") updateTasksBadgeGlobal();
+      });
+    }
+  </script>
+</body>
+</html>
